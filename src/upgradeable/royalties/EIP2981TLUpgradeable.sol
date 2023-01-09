@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/// @title EIP2981TL.sol
+/// @title EIP2981TLUpgradeable.sol
 /// @notice contract to define a default royalty spec 
 ///         while allowing for specific token overrides
 /// @dev contract is meant to be deployed in a minimal proxy pattern 
@@ -18,9 +18,11 @@
 
 pragma solidity 0.8.17;
 
+///////////////////// IMPORTS /////////////////////
+
 import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import { ERC165Upgradeable } from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
-import { IEIP2981 } from "src/royalties/IEIP2981.sol";
+import { IEIP2981 } from "../../royalties/IEIP2981.sol";
 
 ///////////////////// CUSTOM ERRORS /////////////////////
 
@@ -30,7 +32,9 @@ error ZeroAddressError();
 /// @dev error if the royalty percentage is greater than to 100%
 error MaxRoyaltyError();
 
-abstract contract EIP2981TL is IEIP2981, Initializable, ERC165Upgradeable {
+///////////////////// EIP2981TL CONTRACT /////////////////////
+
+abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
 
     ///////////////////// ROYALTY SPEC /////////////////////
 
@@ -48,19 +52,18 @@ abstract contract EIP2981TL is IEIP2981, Initializable, ERC165Upgradeable {
     ///////////////////// INITIALIZER /////////////////////
 
     /// @notice function to initialize the contract
-    function __EIP2981_init(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
-        __EIP2981_init_unchained(defaultRecipient, defaultPercentage);
+    function __EIP2981TLUpgradeable_init(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
+        __EIP2981TLUpgradeable_init_unchained(defaultRecipient, defaultPercentage);
     }
 
-    function __EIP2981_init_unchained(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
+    function __EIP2981TLUpgradeable_init_unchained(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
         _setDefaultRoyaltyInfo(defaultRecipient, defaultPercentage);
     }
 
     ///////////////////// ROYALTY FUNCTIONS /////////////////////
 
     /// @notice function to set default royalty info
-    /// @dev visibility set to private so it can only be used at initialization
-    function _setDefaultRoyaltyInfo(address newRecipient, uint256 newPercentage) private {
+    function _setDefaultRoyaltyInfo(address newRecipient, uint256 newPercentage) internal {
         if (newRecipient == address(0)) { revert ZeroAddressError(); }
         if (newPercentage > 10_000) { revert MaxRoyaltyError(); }
         _defaultRecipient = newRecipient;
@@ -94,6 +97,4 @@ abstract contract EIP2981TL is IEIP2981, Initializable, ERC165Upgradeable {
         return interfaceId == type(IEIP2981).interfaceId || ERC165Upgradeable.supportsInterface(interfaceId);
     }
 
-    
-    
 }

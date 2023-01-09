@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// @title AuthTL.sol
-/// @notice single owner abstract contract
+/// @notice single owner abstract contract that follows EIP-173
 /// @author transientlabs.xyz
 
 /*
@@ -17,8 +17,7 @@ pragma solidity 0.8.17;
 
 ///////////////////// IMPORTS /////////////////////
 
-import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import { ERC165Upgradeable } from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
+import { ERC165 } from "openzeppelin/utils/introspection/ERC165.sol";
 import { IERC173 } from "./IERC173.sol";
 
 ///////////////////// CUSTOM ERRORS /////////////////////
@@ -28,7 +27,7 @@ error NotOwner();
 
 ///////////////////// OWNABLE TL CONTRACT /////////////////////
 
-abstract contract OwnableTL is Initializable, ERC165Upgradeable, IERC173 {
+abstract contract OwnableTL is ERC165, IERC173 {
 
     ///////////////////// STORAGE VARIABLES /////////////////////
 
@@ -43,16 +42,10 @@ abstract contract OwnableTL is Initializable, ERC165Upgradeable, IERC173 {
         _;
     }
 
-    ///////////////////// INITIALIZER /////////////////////
+    ///////////////////// CONSTRUCTOR /////////////////////
 
-    /// @notice function to initialize this contract
-    /// @dev must supply ownership address so that this can easily be used in a contract factory setting
-    function __OwnableTL_init(address initOwner) internal onlyInitializing {
-        __OwnableTL_init_unchained(initOwner);
-    }
-
-    function __OwnableTL_init_unchained(address initOwner) internal onlyInitializing {
-        _transferOwnership(initOwner);
+    constructor() {
+        _transferOwnership(msg.sender);
     }
 
     ///////////////////// EXTERNAL FUNCTIONS /////////////////////
@@ -87,7 +80,7 @@ abstract contract OwnableTL is Initializable, ERC165Upgradeable, IERC173 {
 
     /// @notice override ERC-165 implementation of this function
     /// @dev if using this contract with another contract that suppports ERC-165, will have to override in the inheriting contract
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165Upgradeable) returns (bool) {
-        return interfaceId == type(IERC173).interfaceId || ERC165Upgradeable.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
+        return interfaceId == type(IERC173).interfaceId || ERC165.supportsInterface(interfaceId);
     }
 }

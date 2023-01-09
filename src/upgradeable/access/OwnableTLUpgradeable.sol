@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/// @title AuthTL.sol
-/// @notice single owner abstract contract
+/// @title OwnableTLUpgradeable.sol
+/// @notice single owner abstract contract that follows EIP-173
 /// @author transientlabs.xyz
 
 /*
@@ -19,7 +19,7 @@ pragma solidity 0.8.17;
 
 import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import { ERC165Upgradeable } from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
-import { IERC173 } from "./IERC173.sol";
+import { IERC173 } from "../../access/IERC173.sol";
 
 ///////////////////// CUSTOM ERRORS /////////////////////
 
@@ -28,7 +28,7 @@ error NotOwner();
 
 ///////////////////// OWNABLE TL CONTRACT /////////////////////
 
-abstract contract OwnableTL is Initializable, ERC165Upgradeable, IERC173 {
+abstract contract OwnableTLUpgradeable is Initializable, ERC165Upgradeable, IERC173 {
 
     ///////////////////// STORAGE VARIABLES /////////////////////
 
@@ -47,11 +47,11 @@ abstract contract OwnableTL is Initializable, ERC165Upgradeable, IERC173 {
 
     /// @notice function to initialize this contract
     /// @dev must supply ownership address so that this can easily be used in a contract factory setting
-    function __OwnableTL_init(address initOwner) internal onlyInitializing {
-        __OwnableTL_init_unchained(initOwner);
+    function __OwnableTLUpgradeable_init(address initOwner) internal onlyInitializing {
+        __OwnableTLUpgradeable_init_unchained(initOwner);
     }
 
-    function __OwnableTL_init_unchained(address initOwner) internal onlyInitializing {
+    function __OwnableTLUpgradeable_init_unchained(address initOwner) internal onlyInitializing {
         _transferOwnership(initOwner);
     }
 
