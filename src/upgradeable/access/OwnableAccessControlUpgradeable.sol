@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/// @title OwnableAuthTLUpgradeable.sol
-/// @notice abstract contract single owner with roles based access mechanics
+/// @title OwnableAccessControl.sol
+/// @notice single owner, flexible access control mechanics
 /// @dev can easily be extended by inheriting and applying additional roles
-/// @dev by default, only the owner can grant roles but by inheriting, you
+/// @dev by default, only the owner can grant roles but by inheriting, but you
 ///      may allow other roles to grant roles by using the internal helper.
-/// @author transientlabs.xyz
+/// @author transientlabs.xyz (https://github.com/Transient-Labs/tl-sol-tools)
 
 /*
     ____        _ __    __   ____  _ ________                     __ 
@@ -22,7 +22,7 @@ pragma solidity 0.8.17;
 
 import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import { EnumerableSetUpgradeable } from "openzeppelin-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
-import { OwnableTLUpgradeable } from "./OwnableTLUpgradeable.sol";
+import { OwnableUpgradeable } from "openzeppelin-upgradeable/access/OwnableUpgradeable.sol";
 
 ///////////////////// CUSTOM ERRORS /////////////////////
 
@@ -34,7 +34,7 @@ error NotRoleOrOwner(bytes32 role);
 
 ///////////////////// OWNABLE AUTH TL CONTRACT /////////////////////
 
-abstract contract OwnableAuthTLUpgradeable is Initializable, OwnableTLUpgradeable {
+abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
 
     ///////////////////// STORAGE VARIABLES /////////////////////
 
@@ -56,7 +56,7 @@ abstract contract OwnableAuthTLUpgradeable is Initializable, OwnableTLUpgradeabl
     }
 
     modifier onlyRoleOrOwner(bytes32 role) {
-        if (!hasRole(role, msg.sender) && getIfOwner(msg.sender)) {
+        if (!hasRole(role, msg.sender) && owner() != msg.sender) {
             revert NotRoleOrOwner(role);
         }
         _;
@@ -64,21 +64,29 @@ abstract contract OwnableAuthTLUpgradeable is Initializable, OwnableTLUpgradeabl
 
     ///////////////////// INITIALIZER /////////////////////
 
-    function __OwnableAuthTLUpgradeable_init(address initOwner) internal onlyInitializing {
-        __OwnableTLUpgradeable_init(initOwner);
-        __OwnableAuthTLUpgradeable_init_unchained();
+    function __OwnableAccessControl_init(address initOwner) internal onlyInitializing {
+        __Ownable_init();
+        _transferOwnership(initOwner);
+        __OwnableAccessControl_init_unchained();
     }
 
-    function __OwnableAuthTLUpgradeable_init_unchained() internal onlyInitializing {
+    function __OwnableAccessControl_init_unchained() internal onlyInitializing {
 
     }
 
     ///////////////////// EXTERNAL FUNCTIONS /////////////////////
 
+    /// @notice function to renounce role
+    function renounceRole(bytes32 role) external {
+        address[] memory members = new address[](1);
+        members[0] = msg.sender;
+        _setRole(role, members, false);
+    }
+
     /// @notice function to grant/revoke a role to an address
     /// @dev requires owner to call this function but this may be further
     ///      extended using the internal helper function in inheriting contracts
-    function setRole(bytes32 role, address[] calldata roleMembers, bool status) external onlyOwner {
+    function setRole(bytes32 role, address[] memory roleMembers, bool status) external onlyOwner {
         _setRole(role, roleMembers, status);
     }
 
@@ -87,10 +95,15 @@ abstract contract OwnableAuthTLUpgradeable is Initializable, OwnableTLUpgradeabl
         return _roleStatus[role][potentialRoleMember];
     }
 
+    /// @notice function to get role members
+    function getRoleMembers(bytes32 role) public view returns(address[] memory) {
+        return _roleMembers[role].values();
+    }
+
     ///////////////////// INTERNAL FUNCTIONS /////////////////////
 
     /// @notice helper function to set addresses for a role
-    function _setRole(bytes32 role, address[] calldata roleMembers, bool status) internal {
+    function _setRole(bytes32 role, address[] memory roleMembers, bool status) internal {
         for (uint256 i = 0; i < roleMembers.length; i++) {
             _roleStatus[role][roleMembers[i]] = status;
             if (status) {
@@ -102,11 +115,4 @@ abstract contract OwnableAuthTLUpgradeable is Initializable, OwnableTLUpgradeabl
         }
     }
 
-    ///////////////////// ERC-165 OVERRIDE /////////////////////
-
-    /// @notice override ERC-165 implementation of this function
-    /// @dev if using this contract with another contract that suppports ERC-165, will have to override in the inheriting contract
-    function supportsInterface(bytes4 interfaceId) public view virtual override(OwnableTLUpgradeable) returns (bool) {
-        return OwnableTLUpgradeable.supportsInterface(interfaceId);
-    }
 }

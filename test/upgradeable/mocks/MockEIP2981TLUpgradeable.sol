@@ -10,7 +10,12 @@ import { EIP2981TLUpgradeable } from "../../../src/upgradeable/royalties/EIP2981
 contract MockEIP2981TLUpgradeable is Initializable, EIP2981TLUpgradeable {
 
     function initialize(address recipient, uint256 percentage) external initializer {
-        __EIP2981TLUpgradeable_init(recipient, percentage);
+        __EIP2981TL_init(recipient, percentage);
+    }
+
+    /// @dev function to set new default royalties
+    function setDefaultRoyalty(address recipient, uint256 percentage) external {
+        _setDefaultRoyaltyInfo(recipient, percentage);
     }
 
     /// @dev function to set token specific royalties

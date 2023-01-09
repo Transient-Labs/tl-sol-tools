@@ -11,7 +11,7 @@ contract TestEIP2981TLUpgradeable is Test {
     MockEIP2981TLUpgradeable public mockContract;
 
     ///////////////////// GENERAL TESTS /////////////////////
-    function test__setDefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage) public {
+    function testDefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage) public {
         mockContract = new MockEIP2981TLUpgradeable();
         if (recipient == address(0)) {
             vm.expectRevert(ZeroAddressError.selector);
@@ -26,7 +26,7 @@ contract TestEIP2981TLUpgradeable is Test {
         }
     }
 
-    function test_supportsInterface(address recipient, uint16 percentage) public {
+    function testERC165Support(address recipient, uint16 percentage) public {
         if (recipient != address(0) && percentage <= 10_000) {
             mockContract = new MockEIP2981TLUpgradeable();
             mockContract.initialize(recipient, uint256(percentage));
@@ -35,8 +35,26 @@ contract TestEIP2981TLUpgradeable is Test {
         }
     }
 
+    ///////////////////// DEFAULT OVERRIDE TEST /////////////////////
+    function testOverrideDefaultRoyalty(uint256 tokenId, address recipient, uint16 percentage) public {
+        address defaultRecipient = makeAddr("account");
+        mockContract = new MockEIP2981TLUpgradeable();
+        mockContract.initialize(defaultRecipient, 10_000);
+        if (recipient == address(0)) {
+            vm.expectRevert(ZeroAddressError.selector);
+        } else if (percentage > 10_000) {
+            vm.expectRevert(MaxRoyaltyError.selector);
+        }
+        mockContract.setDefaultRoyalty(recipient, uint256(percentage));
+        if (recipient != address(0) && percentage <= 10_000) {
+            (address returnedRecipient, uint256 amount) = mockContract.royaltyInfo(tokenId, 10000);
+            assertEq(recipient, returnedRecipient);
+            assertEq(amount, percentage);
+        }
+    }
+
     ///////////////////// TOKEN OVERRIDE TEST /////////////////////
-    function test__overrideTokenRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage) public {
+    function testOverrideTokenRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage) public {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TLUpgradeable();
         mockContract.initialize(defaultRecipient, 10_000);

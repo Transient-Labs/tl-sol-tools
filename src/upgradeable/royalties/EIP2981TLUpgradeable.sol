@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /// @title EIP2981TLUpgradeable.sol
-/// @notice contract to define a default royalty spec 
+/// @notice abstract contract to define a default royalty spec 
 ///         while allowing for specific token overrides
-/// @dev contract is meant to be deployed in a minimal proxy pattern 
-///      so using upgradeable intializers instead of constructors
-/// @author transientlabs.xyz
+/// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
+/// @author transientlabs.xyz (https://github.com/Transient-Labs/tl-sol-tools)
 
 /*
     ____        _ __    __   ____  _ ________                     __ 
@@ -52,11 +51,11 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     ///////////////////// INITIALIZER /////////////////////
 
     /// @notice function to initialize the contract
-    function __EIP2981TLUpgradeable_init(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
-        __EIP2981TLUpgradeable_init_unchained(defaultRecipient, defaultPercentage);
+    function __EIP2981TL_init(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
+        __EIP2981TL_init_unchained(defaultRecipient, defaultPercentage);
     }
 
-    function __EIP2981TLUpgradeable_init_unchained(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
+    function __EIP2981TL_init_unchained(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
         _setDefaultRoyaltyInfo(defaultRecipient, defaultPercentage);
     }
 
