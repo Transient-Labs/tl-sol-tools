@@ -115,4 +115,7 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
         }
     }
 
+    /// @dev gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+    uint256[50] private _gap;
+
 }
