@@ -5,25 +5,29 @@
 /// @dev can easily be extended by inheriting and applying additional roles
 /// @dev by default, only the owner can grant roles but by inheriting, but you
 ///      may allow other roles to grant roles by using the internal helper.
-/// @author transientlabs.xyz (https://github.com/Transient-Labs/tl-sol-tools)
+/// @author transientlabs.xyz
+/// https://github.com/Transient-Labs/tl-sol-tools
+/// Version 1.0.0
 
 /*
     ____        _ __    __   ____  _ ________                     __ 
    / __ )__  __(_) /___/ /  / __ \(_) __/ __/__  ________  ____  / /_
   / __  / / / / / / __  /  / / / / / /_/ /_/ _ \/ ___/ _ \/ __ \/ __/
  / /_/ / /_/ / / / /_/ /  / /_/ / / __/ __/  __/ /  /  __/ / / / /__ 
-/_____/\__,_/_/_/\__,_/  /_____/_/_/ /_/  \___/_/   \___/_/ /_/\__(_)
-
-*/
+/_____/\__,_/_/_/\__,_/  /_____/_/_/ /_/  \___/_/   \___/_/ /_/\__(_)*/
 
 pragma solidity 0.8.17;
 
-///////////////////// IMPORTS /////////////////////
+/*//////////////////////////////////////////////////////////////////////////
+                            Imports
+//////////////////////////////////////////////////////////////////////////*/
 
-import { EnumerableSet } from "openzeppelin/utils/structs/EnumerableSet.sol";
-import { Ownable } from "openzeppelin/access/Ownable.sol";
+import {EnumerableSet} from "openzeppelin/utils/structs/EnumerableSet.sol";
+import {Ownable} from "openzeppelin/access/Ownable.sol";
 
-///////////////////// CUSTOM ERRORS /////////////////////
+/*//////////////////////////////////////////////////////////////////////////
+                            Custom Errors
+//////////////////////////////////////////////////////////////////////////*/
 
 /// @dev does not have specified role
 error NotSpecifiedRole(bytes32 role);
@@ -31,21 +35,33 @@ error NotSpecifiedRole(bytes32 role);
 /// @dev is not specified role or owner
 error NotRoleOrOwner(bytes32 role);
 
-///////////////////// OWNABLE TL CONTRACT /////////////////////
+/*//////////////////////////////////////////////////////////////////////////
+                            OwnableAccessControl
+//////////////////////////////////////////////////////////////////////////*/
 
 abstract contract OwnableAccessControl is Ownable {
-
-    ///////////////////// STORAGE VARIABLES /////////////////////
+    /*//////////////////////////////////////////////////////////////////////////
+                                State Variables
+    //////////////////////////////////////////////////////////////////////////*/
 
     using EnumerableSet for EnumerableSet.AddressSet;
+
     mapping(bytes32 => mapping(address => bool)) private _roleStatus;
     mapping(bytes32 => EnumerableSet.AddressSet) private _roleMembers;
 
-    ///////////////////// EVENTS /////////////////////
+    /*//////////////////////////////////////////////////////////////////////////
+                                Events
+    //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param from - address that authorized the role change
+    /// @param user - the address who's role has been changed
+    /// @param approved - boolean indicating the user's status in role
+    /// @param role - the bytes32 role created in the inheriting contract
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
 
-    ///////////////////// MODIFIERS /////////////////////
+    /*//////////////////////////////////////////////////////////////////////////
+                                Modifiers
+    //////////////////////////////////////////////////////////////////////////*/
 
     modifier onlyRole(bytes32 role) {
         if (!hasRole(role, msg.sender)) {
@@ -61,13 +77,18 @@ abstract contract OwnableAccessControl is Ownable {
         _;
     }
 
-    ///////////////////// CONSTRUCTOR /////////////////////
+    /*//////////////////////////////////////////////////////////////////////////
+                                Constructor
+    //////////////////////////////////////////////////////////////////////////*/
 
     constructor() Ownable() {}
 
-    ///////////////////// EXTERNAL FUNCTIONS /////////////////////
+    /*//////////////////////////////////////////////////////////////////////////
+                                External Role Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice function to renounce role
+    /// @param role - bytes32 role created in inheriting contracts
     function renounceRole(bytes32 role) external {
         address[] memory members = new address[](1);
         members[0] = msg.sender;
@@ -77,23 +98,38 @@ abstract contract OwnableAccessControl is Ownable {
     /// @notice function to grant/revoke a role to an address
     /// @dev requires owner to call this function but this may be further
     ///      extended using the internal helper function in inheriting contracts
+    /// @param role - bytes32 role created in inheriting contracts
+    /// @param roleMembers - list of addresses that should have roles attached to them based on `status`
+    /// @param status - bool whether to remove or add `roleMembers` to the `role`
     function setRole(bytes32 role, address[] memory roleMembers, bool status) external onlyOwner {
         _setRole(role, roleMembers, status);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                External View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @notice function to see if an address is the owner
-    function hasRole(bytes32 role, address potentialRoleMember) public view returns(bool) {
+    /// @param role - bytes32 role created in inheriting contracts
+    /// @param potentialRoleMember - address to check for role membership
+    function hasRole(bytes32 role, address potentialRoleMember) public view returns (bool) {
         return _roleStatus[role][potentialRoleMember];
     }
 
     /// @notice function to get role members
-    function getRoleMembers(bytes32 role) public view returns(address[] memory) {
+    /// @param role - bytes32 role created in inheriting contracts
+    function getRoleMembers(bytes32 role) public view returns (address[] memory) {
         return _roleMembers[role].values();
     }
 
-    ///////////////////// INTERNAL FUNCTIONS /////////////////////
+    /*//////////////////////////////////////////////////////////////////////////
+                                Internal Helper Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice helper function to set addresses for a role
+    /// @param role - bytes32 role created in inheriting contracts
+    /// @param roleMembers - list of addresses that should have roles attached to them based on `status`
+    /// @param status - bool whether to remove or add `roleMembers` to the `role`
     function _setRole(bytes32 role, address[] memory roleMembers, bool status) internal {
         for (uint256 i = 0; i < roleMembers.length; i++) {
             _roleStatus[role][roleMembers[i]] = status;
@@ -105,5 +141,4 @@ abstract contract OwnableAccessControl is Ownable {
             emit RoleChange(msg.sender, roleMembers[i], status, role);
         }
     }
-
 }

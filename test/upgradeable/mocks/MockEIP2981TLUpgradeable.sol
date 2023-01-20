@@ -4,11 +4,10 @@
 
 pragma solidity 0.8.17;
 
-import { Initializable } from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import { EIP2981TLUpgradeable } from "../../../src/upgradeable/royalties/EIP2981TLUpgradeable.sol";
+import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
+import {EIP2981TLUpgradeable} from "../../../src/upgradeable/royalties/EIP2981TLUpgradeable.sol";
 
 contract MockEIP2981TLUpgradeable is Initializable, EIP2981TLUpgradeable {
-
     function initialize(address recipient, uint256 percentage) external initializer {
         __EIP2981TL_init(recipient, percentage);
     }

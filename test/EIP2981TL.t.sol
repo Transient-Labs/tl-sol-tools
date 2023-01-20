@@ -3,11 +3,10 @@
 pragma solidity 0.8.17;
 
 import "forge-std/Test.sol";
-import { MockEIP2981TL } from "./mocks/MockEIP2981TL.sol";
-import { ZeroAddressError, MaxRoyaltyError } from "../src/royalties/EIP2981TL.sol";
+import {MockEIP2981TL} from "./mocks/MockEIP2981TL.sol";
+import {ZeroAddressError, MaxRoyaltyError} from "../src/royalties/EIP2981TL.sol";
 
 contract TestEIP2981TL is Test {
-    
     MockEIP2981TL public mockContract;
 
     ///////////////////// GENERAL TESTS /////////////////////

@@ -4,10 +4,9 @@
 
 pragma solidity 0.8.17;
 
-import { EIP2981TL } from "../../src/royalties/EIP2981TL.sol";
+import {EIP2981TL} from "../../src/royalties/EIP2981TL.sol";
 
 contract MockEIP2981TL is EIP2981TL {
-
     constructor(address recipient, uint256 percentage) EIP2981TL(recipient, percentage) {}
 
     /// @dev function to set new default royalties
