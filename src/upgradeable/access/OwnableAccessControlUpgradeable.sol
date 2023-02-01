@@ -47,8 +47,9 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
 
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
-    mapping(bytes32 => mapping(address => bool)) private _roleStatus;
-    mapping(bytes32 => EnumerableSetUpgradeable.AddressSet) private _roleMembers;
+    uint256 private _c; // counter to be able to revoke all priviledges
+    mapping(uint256 => mapping(bytes32 => mapping(address => bool))) private _roleStatus;
+    mapping(uint256 => mapping(bytes32 => EnumerableSetUpgradeable.AddressSet)) private _roleMembers;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Events
@@ -59,6 +60,9 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @param approved - boolean indicating the user's status in role
     /// @param role - the bytes32 role created in the inheriting contract
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
+    
+    /// @param from - address that authorized the revoke
+    event AllRolesRevoked(address indexed from);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Modifiers
@@ -95,6 +99,14 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
                                 External Role Functions
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice function to revoke all roles currently present
+    /// @dev increments the `_c` variables
+    /// @dev requires owner privileges
+    function revokeAllRoles() external onlyOwner {
+        _c++;
+        emit AllRolesRevoked(msg.sender);
+    }
+
     /// @notice function to renounce role
     /// @param role - bytes32 role created in inheriting contracts
     function renounceRole(bytes32 role) external {
@@ -121,13 +133,13 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @param role - bytes32 role created in inheriting contracts
     /// @param potentialRoleMember - address to check for role membership
     function hasRole(bytes32 role, address potentialRoleMember) public view returns (bool) {
-        return _roleStatus[role][potentialRoleMember];
+        return _roleStatus[_c][role][potentialRoleMember];
     }
 
     /// @notice function to get role members
     /// @param role - bytes32 role created in inheriting contracts
     function getRoleMembers(bytes32 role) public view returns (address[] memory) {
-        return _roleMembers[role].values();
+        return _roleMembers[_c][role].values();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -140,11 +152,11 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @param status - bool whether to remove or add `roleMembers` to the `role`
     function _setRole(bytes32 role, address[] memory roleMembers, bool status) internal {
         for (uint256 i = 0; i < roleMembers.length; i++) {
-            _roleStatus[role][roleMembers[i]] = status;
+            _roleStatus[_c][role][roleMembers[i]] = status;
             if (status) {
-                _roleMembers[role].add(roleMembers[i]);
+                _roleMembers[_c][role].add(roleMembers[i]);
             } else {
-                _roleMembers[role].remove(roleMembers[i]);
+                _roleMembers[_c][role].remove(roleMembers[i]);
             }
             emit RoleChange(msg.sender, roleMembers[i], status, role);
         }
