@@ -10,6 +10,7 @@ contract TestOwnableAccessControl is Test {
     MockOwnableAccessControl public mockContract;
 
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
+    event AllRolesRevoked(address indexed from);
 
     function testInitialValues() public {
         mockContract = new MockOwnableAccessControl();
@@ -50,6 +51,11 @@ contract TestOwnableAccessControl is Test {
         vm.expectEmit(true, true, true, true);
         emit RoleChange(address(this), address(5), true, mockContract.MINTER_ROLE());
         mockContract.setMinterRole(address(5));
+
+        // expect owner can revoke all roles
+        vm.expectEmit(true, false, false, false);
+        emit AllRolesRevoked(address(this));
+        mockContract.revokeAllRoles();
 
         // expect reverts on other access controlled functions
         vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
@@ -93,6 +99,12 @@ contract TestOwnableAccessControl is Test {
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
+        // expect can't revoke all roles
+        if (admin != address(this)) {
+            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            mockContract.revokeAllRoles();
+        }
+
         vm.stopPrank();
 
         // revoke admin functionality
@@ -119,6 +131,12 @@ contract TestOwnableAccessControl is Test {
         if (admin != minter) {
             vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
             mockContract.onlyMinterFunction(newNumberOne);
+        }
+
+        // expect can't revoke all roles
+        if (admin != address(this)) {
+            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            mockContract.revokeAllRoles();
         }
 
         vm.stopPrank();
@@ -164,6 +182,12 @@ contract TestOwnableAccessControl is Test {
             mockContract.onlyOwnerFunction(newNumber);
         }
 
+        // expect can't revoke all roles
+        if (minter != address(this)) {
+            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            mockContract.revokeAllRoles();
+        }
+
         vm.stopPrank();
 
         // revoke minter role and expect proper event log
@@ -190,6 +214,12 @@ contract TestOwnableAccessControl is Test {
         if (minter != address(this)) {
             vm.expectRevert(bytes("Ownable: caller is not the owner"));
             mockContract.onlyOwnerFunction(newNumber);
+        }
+
+        // expect can't revoke all roles
+        if (minter != address(this)) {
+            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            mockContract.revokeAllRoles();
         }
 
         vm.stopPrank();
