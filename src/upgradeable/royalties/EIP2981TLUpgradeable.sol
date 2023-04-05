@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
+pragma solidity 0.8.19;
+
 /// @title EIP2981TLUpgradeable.sol
-/// @notice abstract contract to define a default royalty spec
-///         while allowing for specific token overrides
 /// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
-/// https://github.com/Transient-Labs/tl-sol-tools
-/// Version 2.0.0
-
-pragma solidity 0.8.19;
+/// @notice abstract contract to define a default royalty spec
+///         while allowing for specific token overrides
+/// @custom:version 2.0.0
 
 /*//////////////////////////////////////////////////////////////////////////
                             Imports

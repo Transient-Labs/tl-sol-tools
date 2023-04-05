@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
+pragma solidity 0.8.19;
+
 /// @title OwnableAccessControl.sol
+/// @author transientlabs.xyz
 /// @notice single owner, flexible access control mechanics
 /// @dev can easily be extended by inheriting and applying additional roles
 /// @dev by default, only the owner can grant roles but by inheriting, but you
 ///      may allow other roles to grant roles by using the internal helper.
-/// @author transientlabs.xyz
-/// https://github.com/Transient-Labs/tl-sol-tools
-/// Version 2.0.0
-
-pragma solidity 0.8.19;
+/// @custom:version 2.0.0
 
 /*//////////////////////////////////////////////////////////////////////////
                             Imports
