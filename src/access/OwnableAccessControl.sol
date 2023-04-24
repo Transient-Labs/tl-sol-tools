@@ -1,26 +1,5 @@
-// SPDX-License-Identifier: Apache-2.0
-
-/// @title OwnableAccessControl.sol
-/// @notice single owner, flexible access control mechanics
-/// @dev can easily be extended by inheriting and applying additional roles
-/// @dev by default, only the owner can grant roles but by inheriting, but you
-///      may allow other roles to grant roles by using the internal helper.
-/// @author transientlabs.xyz
-/// https://github.com/Transient-Labs/tl-sol-tools
-/// Version 1.0.0
-
-/*
-    ____        _ __    __   ____  _ ________                     __ 
-   / __ )__  __(_) /___/ /  / __ \(_) __/ __/__  ________  ____  / /_
-  / __  / / / / / / __  /  / / / / / /_/ /_/ _ \/ ___/ _ \/ __ \/ __/
- / /_/ / /_/ / / / /_/ /  / /_/ / / __/ __/  __/ /  /  __/ / / / /__ 
-/_____/\__,_/_/_/\__,_/  /_____/_/_/ /_/  \___/_/   \___/_/ /_/\__(_)*/
-
-pragma solidity 0.8.17;
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Imports
-//////////////////////////////////////////////////////////////////////////*/
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.19;
 
 import {EnumerableSet} from "openzeppelin/utils/structs/EnumerableSet.sol";
 import {Ownable} from "openzeppelin/access/Ownable.sol";
@@ -39,6 +18,13 @@ error NotRoleOrOwner(bytes32 role);
                             OwnableAccessControl
 //////////////////////////////////////////////////////////////////////////*/
 
+/// @title OwnableAccessControl.sol
+/// @notice single owner, flexible access control mechanics
+/// @dev can easily be extended by inheriting and applying additional roles
+/// @dev by default, only the owner can grant roles but by inheriting, but you
+///      may allow other roles to grant roles by using the internal helper.
+/// @author transientlabs.xyz
+/// @custom:version 2.0.0
 abstract contract OwnableAccessControl is Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables

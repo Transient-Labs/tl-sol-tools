@@ -1,24 +1,5 @@
-// SPDX-License-Identifier: Apache-2.0
-
-/// @title EIP2981TLUpgradeable.sol
-/// @notice abstract contract to define a default royalty spec
-///         while allowing for specific token overrides
-/// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
-/// @author transientlabs.xyz
-/// https://github.com/Transient-Labs/tl-sol-tools
-/// Version 1.0.0
-/*
-    ____        _ __    __   ____  _ ________                     __ 
-   / __ )__  __(_) /___/ /  / __ \(_) __/ __/__  ________  ____  / /_
-  / __  / / / / / / __  /  / / / / / /_/ /_/ _ \/ ___/ _ \/ __ \/ __/
- / /_/ / /_/ / / / /_/ /  / /_/ / / __/ __/  __/ /  /  __/ / / / /__ 
-/_____/\__,_/_/_/\__,_/  /_____/_/_/ /_/  \___/_/   \___/_/ /_/\__(_)*/
-
-pragma solidity 0.8.17;
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Imports
-//////////////////////////////////////////////////////////////////////////*/
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.19;
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import {ERC165Upgradeable} from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
@@ -38,6 +19,12 @@ error MaxRoyaltyError();
                             EIP2981TL
 //////////////////////////////////////////////////////////////////////////*/
 
+/// @title EIP2981TLUpgradeable.sol
+/// @notice abstract contract to define a default royalty spec
+///         while allowing for specific token overrides
+/// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
+/// @author transientlabs.xyz
+/// @custom:version 2.0.0
 abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                 Royalty Struct
