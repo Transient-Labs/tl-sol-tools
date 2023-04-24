@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
 
 /// @title OwnableAccessControl.sol
 /// @notice single owner, flexible access control mechanics
@@ -7,16 +7,9 @@
 ///      may allow other roles to grant roles by using the internal helper.
 /// @author transientlabs.xyz
 /// https://github.com/Transient-Labs/tl-sol-tools
-/// Version 1.0.0
+/// Version 1.0.1
 
-/*
-    ____        _ __    __   ____  _ ________                     __ 
-   / __ )__  __(_) /___/ /  / __ \(_) __/ __/__  ________  ____  / /_
-  / __  / / / / / / __  /  / / / / / /_/ /_/ _ \/ ___/ _ \/ __ \/ __/
- / /_/ / /_/ / / / /_/ /  / /_/ / / __/ __/  __/ /  /  __/ / / / /__ 
-/_____/\__,_/_/_/\__,_/  /_____/_/_/ /_/  \___/_/   \___/_/ /_/\__(_)*/
-
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 /*//////////////////////////////////////////////////////////////////////////
                             Imports

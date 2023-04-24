@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import {OwnableAccessControlUpgradeable} from "../../../src/upgradeable/access/OwnableAccessControlUpgradeable.sol";
