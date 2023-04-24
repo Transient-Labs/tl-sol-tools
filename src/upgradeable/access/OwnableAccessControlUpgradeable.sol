@@ -1,26 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-/// @title OwnableAccessControl.sol
-/// @notice single owner, flexible access control mechanics
-/// @dev can easily be extended by inheriting and applying additional roles
-/// @dev by default, only the owner can grant roles but by inheriting, but you
-///      may allow other roles to grant roles by using the internal helper.
-/// @author transientlabs.xyz
-/// https://github.com/Transient-Labs/tl-sol-tools
-/// Version 1.0.0
-
-/*
-    ____        _ __    __   ____  _ ________                     __ 
-   / __ )__  __(_) /___/ /  / __ \(_) __/ __/__  ________  ____  / /_
-  / __  / / / / / / __  /  / / / / / /_/ /_/ _ \/ ___/ _ \/ __ \/ __/
- / /_/ / /_/ / / / /_/ /  / /_/ / / __/ __/  __/ /  /  __/ / / / /__ 
-/_____/\__,_/_/_/\__,_/  /_____/_/_/ /_/  \___/_/   \___/_/ /_/\__(_)*/
-
 pragma solidity 0.8.19;
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Imports
-//////////////////////////////////////////////////////////////////////////*/
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import {EnumerableSetUpgradeable} from "openzeppelin-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
@@ -37,9 +16,16 @@ error NotSpecifiedRole(bytes32 role);
 error NotRoleOrOwner(bytes32 role);
 
 /*//////////////////////////////////////////////////////////////////////////
-                            OwnableAccessControl
+                        OwnableAccessControlUpgradeable
 //////////////////////////////////////////////////////////////////////////*/
 
+/// @title OwnableAccessControl.sol
+/// @notice single owner, flexible access control mechanics
+/// @dev can easily be extended by inheriting and applying additional roles
+/// @dev by default, only the owner can grant roles but by inheriting, but you
+///      may allow other roles to grant roles by using the internal helper.
+/// @author transientlabs.xyz
+/// @custom:version 2.0.0
 abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
