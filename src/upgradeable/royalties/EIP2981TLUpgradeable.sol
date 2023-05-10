@@ -118,6 +118,16 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                            External View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Query the default royalty receiver and percentage.
+    /// @return Tuple containing the default royalty recipient and percentage out of 10_000
+    function getDefaultRecipientAndPercentage() external view returns (address, uint256) {
+        return (_defaultRecipient, _defaultPercentage);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 Upgradeability Gap
     //////////////////////////////////////////////////////////////////////////*/
 
