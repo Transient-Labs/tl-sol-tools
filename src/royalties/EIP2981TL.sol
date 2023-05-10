@@ -105,4 +105,14 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
     function supportsInterface(bytes4 interfaceId) public view virtual override (ERC165) returns (bool) {
         return interfaceId == type(IEIP2981).interfaceId || ERC165.supportsInterface(interfaceId);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            External View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Query the default royalty receiver and percentage.
+    /// @return Tuple containing the default royalty recipient and percentage out of 10_000
+    function getDefaultRecipientAndPercentage() external view returns (address, uint256) {
+        return (_defaultRecipient, _defaultPercentage);
+    }
 }
