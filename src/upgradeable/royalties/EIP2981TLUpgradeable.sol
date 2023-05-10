@@ -24,7 +24,7 @@ error MaxRoyaltyError();
 ///         while allowing for specific token overrides
 /// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
-/// @custom:version 2.1.0
+/// @custom:version 2.2.0
 abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                 Royalty Struct
@@ -123,7 +123,7 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
 
     /// @notice Query the default royalty receiver and percentage.
     /// @return Tuple containing the default royalty recipient and percentage out of 10_000
-    function getDefaultRecipientAndPercentage() external view returns (address, uint256) {
+    function getDefaultRoyaltyRecipientAndPercentage() external view returns (address, uint256) {
         return (_defaultRecipient, _defaultPercentage);
     }
 
