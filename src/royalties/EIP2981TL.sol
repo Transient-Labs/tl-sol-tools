@@ -102,7 +102,7 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ERC165
-    function supportsInterface(bytes4 interfaceId) public view virtual override (ERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165) returns (bool) {
         return interfaceId == type(IEIP2981).interfaceId || ERC165.supportsInterface(interfaceId);
     }
 

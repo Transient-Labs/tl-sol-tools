@@ -46,7 +46,7 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @param approved - boolean indicating the user's status in role
     /// @param role - the bytes32 role created in the inheriting contract
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
-    
+
     /// @param from - address that authorized the revoke
     event AllRolesRevoked(address indexed from);
 
