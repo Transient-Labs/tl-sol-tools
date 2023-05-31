@@ -1,6 +1,13 @@
 # Transient Labs Sol Tools
 Inheritable contracts that can be used for a variety of purposes. This is largely inspired by the work done by OpenZeppelin.
 
+## Usage
+You should have no trouble inheriting from this library if you install with foundry.
+
+When cloning, you must use either `make remove && make install` or `make update` to install/update the required modules, such as `forge-std` or OpenZeppelin contracts.
+
+We use OpenZeppelin contracts version 4.8.3 in this codebase.
+
 ## Disclaimer
 This codebase is provided on an "as is" and "as available" basis.
 

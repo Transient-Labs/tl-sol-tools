@@ -15,7 +15,7 @@ contract TestOwnableAccessControl is Test {
 
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
     event AllRolesRevoked(address indexed from);
-    
+
     function testInitialization(address owner) public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));

@@ -113,7 +113,7 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ERC165Upgradeable
-    function supportsInterface(bytes4 interfaceId) public view virtual override (ERC165Upgradeable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165Upgradeable) returns (bool) {
         return interfaceId == type(IEIP2981).interfaceId || ERC165Upgradeable.supportsInterface(interfaceId);
     }
 
