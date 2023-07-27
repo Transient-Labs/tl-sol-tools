@@ -8,6 +8,15 @@ When cloning, you must use either `make remove && make install` or `make update`
 
 We use OpenZeppelin contracts version 4.8.3 in this codebase.
 
+## Testing
+You should run the test suite with `make test_suite`. 
+
+This loops through the following solidity versions:
+- 0.8.17
+- 0.8.18
+- 0.8.19
+- 0.8.20
+
 ## Disclaimer
 This codebase is provided on an "as is" and "as available" basis.
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.19;
+pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
 import {MockEIP2981TL} from "./mocks/MockEIP2981TL.sol";

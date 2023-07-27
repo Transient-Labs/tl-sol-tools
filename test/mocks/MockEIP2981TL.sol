@@ -2,7 +2,7 @@
 
 /// @dev this contract does not have proper access control but is only for testing
 
-pragma solidity 0.8.19;
+pragma solidity ^0.8.17;
 
 import {EIP2981TL} from "../../src/royalties/EIP2981TL.sol";
 
