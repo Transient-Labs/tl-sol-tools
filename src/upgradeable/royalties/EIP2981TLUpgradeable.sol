@@ -24,7 +24,7 @@ error MaxRoyaltyError();
 ///         while allowing for specific token overrides
 /// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
-/// @custom:version 2.2.0
+/// @custom:version 2.2.2
 abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                 Royalty Struct
