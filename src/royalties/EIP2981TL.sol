@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.17;
 
 import {ERC165} from "openzeppelin/utils/introspection/ERC165.sol";
 import {IEIP2981} from "./IEIP2981.sol";
@@ -24,7 +24,7 @@ error MaxRoyaltyError();
 /// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
 /// https://github.com/Transient-Labs/tl-sol-tools
-/// @custom:version 2.2.0
+/// @custom:version 2.2.2
 abstract contract EIP2981TL is IEIP2981, ERC165 {
     /*//////////////////////////////////////////////////////////////////////////
                                 Royalty Struct

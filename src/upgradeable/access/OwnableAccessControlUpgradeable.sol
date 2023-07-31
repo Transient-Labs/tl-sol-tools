@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.17;
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import {EnumerableSetUpgradeable} from "openzeppelin-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
@@ -25,7 +25,7 @@ error NotRoleOrOwner(bytes32 role);
 /// @dev by default, only the owner can grant roles but by inheriting, but you
 ///      may allow other roles to grant roles by using the internal helper.
 /// @author transientlabs.xyz
-/// @custom:version 2.2.0
+/// @custom:version 2.2.2
 abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
