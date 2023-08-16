@@ -3,7 +3,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import {MockEIP2981TLUpgradeable} from "../mocks/MockEIP2981TLUpgradeable.sol";
+import {MockEIP2981TLUpgradeable} from "../../utils/MockEIP2981TLUpgradeable.sol";
 import {ZeroAddressError, MaxRoyaltyError} from "tl-sol-tools/upgradeable/royalties/EIP2981TLUpgradeable.sol";
 
 contract TestEIP2981TLUpgradeable is Test {

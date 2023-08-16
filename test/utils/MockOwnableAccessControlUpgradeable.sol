@@ -2,14 +2,17 @@
 
 pragma solidity ^0.8.17;
 
-import {OwnableAccessControl} from "../../src/access/OwnableAccessControl.sol";
+import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableAccessControlUpgradeable} from "tl-sol-tools/upgradeable/access/OwnableAccessControlUpgradeable.sol";
 
-contract MockOwnableAccessControl is OwnableAccessControl {
+contract MockOwnableAccessControlUpgradeable is Initializable, OwnableAccessControlUpgradeable {
     uint256 public number;
     bytes32 public ADMIN_ROLE = keccak256("ADMIN");
     bytes32 public MINTER_ROLE = keccak256("MINTER");
 
-    constructor() OwnableAccessControl() {}
+    function initialize(address initOwner) external initializer {
+        __OwnableAccessControl_init(initOwner);
+    }
 
     /// @dev function to let admins give minter roles
     function setMinterRole(address minter) external onlyRoleOrOwner(ADMIN_ROLE) {

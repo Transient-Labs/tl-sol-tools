@@ -3,7 +3,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import {MockOwnableAccessControlUpgradeable} from "../mocks/MockOwnableAccessControlUpgradeable.sol";
+import {MockOwnableAccessControlUpgradeable} from "../../utils/MockOwnableAccessControlUpgradeable.sol";
 import {
     OwnableAccessControlUpgradeable,
     NotRoleOrOwner,
