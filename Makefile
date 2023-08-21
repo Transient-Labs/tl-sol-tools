@@ -12,20 +12,30 @@ remove:
 
 # Install the modules
 install:
-	forge install foundry-rs/forge-std
-	forge install OpenZeppelin/openzeppelin-contracts@v4.8.3
-	forge install OpenZeppelin/openzeppelin-contracts-upgradeable@v4.8.3
+	forge install foundry-rs/forge-std --no-commit
+	forge install OpenZeppelin/openzeppelin-contracts@v4.8.3 --no-commit
+	forge install OpenZeppelin/openzeppelin-contracts-upgradeable@v4.8.3 --no-commit
+	forge install manifoldxyz/royalty-registry-solidity --no-commit
 
 # Updatee the modules
 update: remove install
 
 # Builds
 build:
-	forge fmt && forge clean && forge build --optimize --optimizer-runs 2000
+	forge fmt && forge clean && forge build
 
 # Tests
-test_suite:
+compiler_test:
 	forge test --use 0.8.17
 	forge test --use 0.8.18
 	forge test --use 0.8.19
 	forge test --use 0.8.20
+
+quick_test:
+	forge test --fuzz-runs 512
+
+gas_test:
+	forge test --gas-report
+
+fuzz_test:
+	forge test --fuzz-runs 10000

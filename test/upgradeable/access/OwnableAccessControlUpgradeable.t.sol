@@ -3,12 +3,12 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import {MockOwnableAccessControlUpgradeable} from "./mocks/MockOwnableAccessControlUpgradeable.sol";
+import {MockOwnableAccessControlUpgradeable} from "../../utils/MockOwnableAccessControlUpgradeable.sol";
 import {
     OwnableAccessControlUpgradeable,
     NotRoleOrOwner,
     NotSpecifiedRole
-} from "../../src/upgradeable/access/OwnableAccessControlUpgradeable.sol";
+} from "tl-sol-tools/upgradeable/access/OwnableAccessControlUpgradeable.sol";
 
 contract TestOwnableAccessControl is Test {
     MockOwnableAccessControlUpgradeable public mockContract;
