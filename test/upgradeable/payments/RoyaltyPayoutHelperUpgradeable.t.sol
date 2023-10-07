@@ -6,13 +6,14 @@ import {Receiver, RevertingReceiver} from "../../utils/Receivers.sol";
 import {WETH9} from "../../utils/WETH9.sol";
 import {MockERC20, MockERC20WithFee} from "../../utils/MockERC20.sol";
 import {RoyaltyPayoutHelperUpgradeable, IRoyaltyEngineV1} from "tl-sol-tools/upgradeable/payments/RoyaltyPayoutHelperUpgradeable.sol";
+import {ChainalysisSanctionsOracle} from "tl-sol-tools/payments/SanctionsCompliance.sol";
 import {Strings} from "openzeppelin/utils/Strings.sol";
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 
 contract ExternalRoyaltyPayoutHelper is Initializable, RoyaltyPayoutHelperUpgradeable {
 
-    function initialize(address wethAddress, address royaltyEngineAddress) external initializer {
-        __RoyaltyPayoutHelper_init(wethAddress, royaltyEngineAddress);
+    function initialize(address sanctionsOracle, address wethAddress, address royaltyEngineAddress) external initializer {
+        __RoyaltyPayoutHelper_init(sanctionsOracle, wethAddress, royaltyEngineAddress);
     }
 
     function setWethAddress(address wethAddress) external {
@@ -25,6 +26,10 @@ contract ExternalRoyaltyPayoutHelper is Initializable, RoyaltyPayoutHelperUpgrad
 
     function payoutRoyalties(address token, uint256 tokenId, address currency, uint256 salePrice) external returns(uint256) {
         return _payoutRoyalties(token, tokenId, currency, salePrice);
+    }
+
+    function updateSanctionsOracle(address newOracle) external {
+        _updateSanctionsOracle(newOracle);
     }
 }
 
@@ -53,7 +58,7 @@ contract TestRoyaltyPayoutHelperUpgradeable is Test {
         erc20fee = new MockERC20WithFee(ben);
 
         rph = new ExternalRoyaltyPayoutHelper();
-        rph.initialize(weth, royaltyEngine);
+        rph.initialize(address(0), weth, royaltyEngine);
     }
 
     function testInit() public view {
@@ -63,7 +68,7 @@ contract TestRoyaltyPayoutHelperUpgradeable is Test {
     
     function testInitAgain() public {
         vm.expectRevert();
-        rph.initialize(weth, royaltyEngine);
+        rph.initialize(address(0), weth, royaltyEngine);
     }
 
     function testUpdateWethAddress(address newWeth) public {
@@ -151,7 +156,7 @@ contract TestRoyaltyPayoutHelperUpgradeable is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesETH(uint8 numRecipients, uint256 salePrice) public {
+    function testPayoutRoyaltiesETH(uint8 numRecipients, uint256 salePrice, bool sanctionsCompliance) public {
         vm.assume(salePrice > 4);
         vm.assume(numRecipients > 0);
         vm.assume(salePrice >= numRecipients);
@@ -171,18 +176,36 @@ contract TestRoyaltyPayoutHelperUpgradeable is Test {
             abi.encode(recipients, amounts)
         );
 
+        if (sanctionsCompliance) {
+            address newOracle = makeAddr("Sanctions compliance is soooooo fun");
+            rph.updateSanctionsOracle(newOracle);
+            vm.mockCall(
+                newOracle,
+                abi.encodeWithSelector(ChainalysisSanctionsOracle.isSanctioned.selector),
+                abi.encode(true)
+            );
+        }
+
         vm.deal(address(rph), salePrice);
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
-        assert(remainingAmount == remainingSale);
-        for (uint256 i = 0; i < numRecipients; i++) {
-            assert(recipients[i].balance == price);
+
+        if (sanctionsCompliance) {
+            assert(remainingSale == salePrice);
+            for (uint256 i = 0; i < numRecipients; i++) {
+                assert(recipients[i].balance == 0);
+            }
+        } else {
+            assert(remainingAmount == remainingSale);
+            for (uint256 i = 0; i < numRecipients; i++) {
+                assert(recipients[i].balance == price);
+            }
         }
 
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesERC20(uint8 numRecipients, uint256 salePrice) public {
+    function testPayoutRoyaltiesERC20(uint8 numRecipients, uint256 salePrice, bool sanctionsCompliance) public {
         vm.assume(salePrice > 4);
         vm.assume(numRecipients > 0);
         vm.assume(salePrice >= numRecipients);
@@ -202,13 +225,31 @@ contract TestRoyaltyPayoutHelperUpgradeable is Test {
             abi.encode(recipients, amounts)
         );
 
+        if (sanctionsCompliance) {
+            address newOracle = makeAddr("Sanctions compliance is soooooo fun");
+            rph.updateSanctionsOracle(newOracle);
+            vm.mockCall(
+                newOracle,
+                abi.encodeWithSelector(ChainalysisSanctionsOracle.isSanctioned.selector),
+                abi.encode(true)
+            );
+        }
+
         vm.prank(ben);
         erc20.transfer(address(rph), salePrice);
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(erc20), salePrice);
-        assert(remainingAmount == remainingSale);
-        for (uint256 i = 0; i < numRecipients; i++) {
-            assert(erc20.balanceOf(recipients[i]) == price);
+
+        if (sanctionsCompliance) {
+            assert(remainingSale == salePrice);
+            for (uint256 i = 0; i < numRecipients; i++) {
+                assert(erc20.balanceOf(recipients[i]) == 0);
+            }
+        } else {
+            assert(remainingAmount == remainingSale);
+            for (uint256 i = 0; i < numRecipients; i++) {
+                assert(erc20.balanceOf(recipients[i]) == price);
+            }
         }
 
         vm.clearMockedCalls();

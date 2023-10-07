@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import {TransferHelper} from "../../payments/TransferHelper.sol";
+import {SanctionsComplianceUpgradeable} from "./SanctionsComplianceUpgradeable.sol";
 import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -11,9 +12,10 @@ import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
 
 /// @title Royalty Payout Helper
 /// @notice Abstract contract to help payout royalties using the Royalty Registry
+/// @dev Does not manage updating the sanctions oracle and expects the child contract to implement
 /// @author transientlabs.xyz
 /// @custom:last-updated 2.4.0
-abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelper {
+abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelper, SanctionsComplianceUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                   State Variables
     //////////////////////////////////////////////////////////////////////////*/
@@ -26,10 +28,12 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Function to initialize the contract
+    /// @param sanctionsOracle - the init sanctions oracle
     /// @param wethAddress - the init weth address
     /// @param royaltyEngineAddress - the init royalty engine address
-    function __RoyaltyPayoutHelper_init(address wethAddress, address royaltyEngineAddress) internal onlyInitializing {
+    function __RoyaltyPayoutHelper_init(address sanctionsOracle, address wethAddress, address royaltyEngineAddress) internal onlyInitializing {
         __RoyaltyPayoutHelper_init_unchained(wethAddress, royaltyEngineAddress);
+        __SanctionsCompliance_init(sanctionsOracle);
     }
 
     /// @notice unchained function to initialize the contract
@@ -87,6 +91,7 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
             if (recipients.length != amounts.length) return remainingSale;
 
             for (uint256 i = 0; i < recipients.length; i++) {
+                if (_isSanctioned(recipients[i], false)) continue; // don't pay to sanctioned addresses
                 if (amounts[i] > remainingSale) break;
                 remainingSale -= amounts[i];
                 if (currency == address(0)) {
