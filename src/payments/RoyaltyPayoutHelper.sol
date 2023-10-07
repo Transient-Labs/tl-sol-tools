@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import {TransferHelper} from "./TransferHelper.sol";
+import {SanctionsCompliance} from "./SanctionsCompliance.sol";
 import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -10,9 +11,10 @@ import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
 
 /// @title Royalty Payout Helper
 /// @notice Abstract contract to help payout royalties using the Royalty Registry
+/// @dev Does not manage updating the sanctions oracle and expects the child contract to implement
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.4.0
-abstract contract RoyaltyPayoutHelper is TransferHelper {
+/// @custom:last-updated 2.5.0
+abstract contract RoyaltyPayoutHelper is TransferHelper, SanctionsCompliance {
     /*//////////////////////////////////////////////////////////////////////////
                                   State Variables
     //////////////////////////////////////////////////////////////////////////*/
@@ -24,9 +26,10 @@ abstract contract RoyaltyPayoutHelper is TransferHelper {
                                   Constructor
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @param sanctionsOracle - the init sanctions oracle
     /// @param wethAddress - the init weth address
     /// @param royaltyEngineAddress - the init royalty engine address
-    constructor(address wethAddress, address royaltyEngineAddress) {
+    constructor(address sanctionsOracle, address wethAddress, address royaltyEngineAddress) SanctionsCompliance(sanctionsOracle) {
         weth = wethAddress;
         royaltyEngine = IRoyaltyEngineV1(royaltyEngineAddress);
     }
@@ -75,6 +78,7 @@ abstract contract RoyaltyPayoutHelper is TransferHelper {
             if (recipients.length != amounts.length) return remainingSale;
 
             for (uint256 i = 0; i < recipients.length; i++) {
+                if (_isSanctioned(recipients[i], false)) continue; // don't pay to sanctioned addresses
                 if (amounts[i] > remainingSale) break;
                 remainingSale -= amounts[i];
                 if (currency == address(0)) {
