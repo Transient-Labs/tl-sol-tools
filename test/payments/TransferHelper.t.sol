@@ -56,6 +56,8 @@ contract TestTransferHelper is Test {
             recipient.code.length == 0 && recipient > address(100)
         );
 
+        vm.assume(amount < 1_000_000_000_000_000_000 ether);
+
         // test contract receiver
         vm.deal(address(th), amount);
         uint256 b1 = receiver.balance;
@@ -73,6 +75,12 @@ contract TestTransferHelper is Test {
         uint256 b3 = IERC20(weth).balanceOf(revertingReceiver);
         th.safeTransferETH(revertingReceiver, amount, weth);
         assert(IERC20(weth).balanceOf(revertingReceiver) - b3 == amount);
+
+        // test griefing receiver
+        vm.deal(address(th), amount);
+        uint256 b4 = IERC20(weth).balanceOf(griefingReceiver);
+        th.safeTransferETH(griefingReceiver, amount, weth);
+        assert(IERC20(weth).balanceOf(griefingReceiver) - b4 == amount);
     }
 
     function testSafeTransferETHWithGasLimit(address recipient, uint256 amount) public {
