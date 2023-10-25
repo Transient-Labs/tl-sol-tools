@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "forge-std/Test.sol";
-import {Receiver, RevertingReceiver} from "../utils/Receivers.sol";
+import {Receiver, RevertingReceiver, GriefingReceiver} from "../utils/Receivers.sol";
 import {WETH9} from "../utils/WETH9.sol";
 import {MockERC20, MockERC20WithFee} from "../utils/MockERC20.sol";
 import {TransferHelper, ETHTransferFailed, InsufficentERC20Transfer} from "tl-sol-tools/payments/TransferHelper.sol";
@@ -12,6 +12,10 @@ contract ExternalTransferHelper is TransferHelper {
 
     function safeTransferETH(address recipient, uint256 amount, address weth) external {
         _safeTransferETH(recipient, amount, weth);
+    }
+
+    function safeTransferETHWithGasLimit(address recipient, uint256 amount, address weth, uint256 gasLimit) external {
+        _safeTransferETH(recipient, amount, weth, gasLimit);
     }
 
     function safeTransferERC20(address recipient, address currency, uint256 amount) external {
@@ -28,6 +32,7 @@ contract TestTransferHelper is Test {
     address weth;
     address receiver;
     address revertingReceiver;
+    address griefingReceiver;
     MockERC20 erc20;
     MockERC20WithFee erc20fee;
 
@@ -40,6 +45,7 @@ contract TestTransferHelper is Test {
         weth = address(new WETH9());
         receiver = address(new Receiver());
         revertingReceiver = address(new RevertingReceiver());
+        griefingReceiver = address(new GriefingReceiver());
         erc20 = new MockERC20(ben);
         erc20fee = new MockERC20WithFee(ben);
     }
@@ -67,6 +73,38 @@ contract TestTransferHelper is Test {
         uint256 b3 = IERC20(weth).balanceOf(revertingReceiver);
         th.safeTransferETH(revertingReceiver, amount, weth);
         assert(IERC20(weth).balanceOf(revertingReceiver) - b3 == amount);
+    }
+
+    function testSafeTransferETHWithGasLimit(address recipient, uint256 amount) public {
+        vm.assume(
+            recipient.code.length == 0 && recipient > address(100)
+        );
+
+        vm.assume(amount < 1_000_000_000_000_000_000 ether);
+
+        // test contract receiver
+        vm.deal(address(th), amount);
+        uint256 b1 = receiver.balance;
+        th.safeTransferETHWithGasLimit(receiver, amount, weth, 1e4);
+        assert(receiver.balance - b1 == amount);
+
+        // test recipient
+        vm.deal(address(th), amount);
+        uint256 b2 = recipient.balance;
+        th.safeTransferETHWithGasLimit(recipient, amount, weth, 1e4);
+        assert(recipient.balance - b2 == amount);
+
+        // test reverting receiver
+        vm.deal(address(th), amount);
+        uint256 b3 = IERC20(weth).balanceOf(revertingReceiver);
+        th.safeTransferETHWithGasLimit(revertingReceiver, amount, weth, 1e4);
+        assert(IERC20(weth).balanceOf(revertingReceiver) - b3 == amount);
+
+        // test griefing receiver
+        vm.deal(address(th), amount);
+        uint256 b4 = IERC20(weth).balanceOf(griefingReceiver);
+        th.safeTransferETHWithGasLimit(griefingReceiver, amount, weth, 1e4);
+        assert(IERC20(weth).balanceOf(griefingReceiver) - b4 == amount);
     }
 
     function testSafeTransferERC20(address recipient, uint256 amount) public {
