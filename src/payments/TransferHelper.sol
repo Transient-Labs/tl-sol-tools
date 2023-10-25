@@ -21,7 +21,7 @@ error InsufficentERC20Transfer();
 /// @title Transfer Helper
 /// @notice Abstract contract that has helper function for sending ETH and ERC20's safely
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.3.0
+/// @custom:last-updated 2.6.0
 abstract contract TransferHelper {
     /*//////////////////////////////////////////////////////////////////////////
                                   State Variables
@@ -34,14 +34,25 @@ abstract contract TransferHelper {
                                    ETH Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Function to force transfer ETH
+    /// @notice Function to force transfer ETH, defaulting to forwarding 100k gas
     /// @dev On failure to send the ETH, the ETH is converted to WETH and sent
     /// @dev Care should be taken to always pass the proper WETH address that adheres to IWETH
     /// @param recipient The recipient of the ETH
     /// @param amount The amount of ETH to send
     /// @param weth The WETH token address
     function _safeTransferETH(address recipient, uint256 amount, address weth) internal {
-        (bool success,) = recipient.call{value: amount}("");
+        _safeTransferETH(recipient, amount, weth, 1e5);
+    }
+
+    /// @notice Function to force transfer ETH, with a gas limit
+    /// @dev On failure to send the ETH, the ETH is converted to WETH and sent
+    /// @dev Care should be taken to always pass the proper WETH address that adheres to IWETH
+    /// @param recipient The recipient of the ETH
+    /// @param amount The amount of ETH to send
+    /// @param weth The WETH token address
+    /// @param gasLimit The gas to forward
+    function _safeTransferETH(address recipient, uint256 amount, address weth, uint256 gasLimit) internal {
+        (bool success,) = recipient.call{value: amount, gas: gasLimit}("");
         if (!success) {
             IWETH token = IWETH(weth);
             token.deposit{value: amount}();

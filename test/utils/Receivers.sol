@@ -14,3 +14,12 @@ contract RevertingReceiver {
         revert("you shall not pass");
     }
 }
+
+contract GriefingReceiver {
+    event Grief();
+    receive() external payable {
+        for (uint256 i = 0; i < type(uint256).max; i++) {
+            emit Grief();
+        }
+    }
+}
