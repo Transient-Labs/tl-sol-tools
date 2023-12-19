@@ -159,7 +159,11 @@ contract TestTransferHelper is Test, Errors {
         // test amount with regular ERC20
         uint256 b1 = erc20.balanceOf(recipient);
         th.safeTransferFromERC20(chris, recipient, address(erc20), amount);
-        assert(erc20.balanceOf(recipient) - b1 == amount);
+        if (recipient != chris) {
+            assert(erc20.balanceOf(recipient) - b1 == amount);
+        } else {
+            assert(erc20.balanceOf(recipient) == b1);
+        }
 
         if (amount > 1) {
             // fund chris

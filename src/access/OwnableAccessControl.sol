@@ -58,7 +58,7 @@ abstract contract OwnableAccessControl is Ownable, Errors {
                                 Constructor
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() Ownable() {}
+    constructor() Ownable(msg.sender) {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                 External Role Functions

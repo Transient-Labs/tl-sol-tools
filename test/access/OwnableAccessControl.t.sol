@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
 import {MockOwnableAccessControl} from "test/utils/MockOwnableAccessControl.sol";
-import {OwnableAccessControl} from "src/access/OwnableAccessControl.sol";
+import {OwnableAccessControl, Ownable} from "src/access/OwnableAccessControl.sol";
 import {Errors} from "src/utils/Errors.sol";
 
 contract TestOwnableAccessControl is Test, Errors {
@@ -90,7 +90,7 @@ contract TestOwnableAccessControl is Test, Errors {
 
         // expect reverts on other role locked functions
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.onlyOwnerFunction(newNumberOne);
         }
 
@@ -101,7 +101,7 @@ contract TestOwnableAccessControl is Test, Errors {
 
         // expect can't revoke all roles
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.revokeAllRoles();
         }
 
@@ -124,7 +124,7 @@ contract TestOwnableAccessControl is Test, Errors {
         mockContract.onlyAdminOrOwnerFunction(newNumberTwo);
 
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.onlyOwnerFunction(newNumberOne);
         }
 
@@ -135,7 +135,7 @@ contract TestOwnableAccessControl is Test, Errors {
 
         // expect can't revoke all roles
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.revokeAllRoles();
         }
 
@@ -178,13 +178,13 @@ contract TestOwnableAccessControl is Test, Errors {
         mockContract.onlyAdminOrOwnerFunction(newNumber);
 
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.onlyOwnerFunction(newNumber);
         }
 
         // expect can't revoke all roles
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.revokeAllRoles();
         }
 
@@ -212,13 +212,13 @@ contract TestOwnableAccessControl is Test, Errors {
         mockContract.onlyAdminOrOwnerFunction(newNumber);
 
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.onlyOwnerFunction(newNumber);
         }
 
         // expect can't revoke all roles
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.revokeAllRoles();
         }
 

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {EnumerableSetUpgradeable} from "lib/openzeppelin-contracts-upgradeable/contracts/utils/structs/EnumerableSetUpgradeable.sol";
+import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import {OwnableUpgradeable} from "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {Errors} from "src/utils/Errors.sol";
 
@@ -18,11 +18,11 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
 
-    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 private _c; // counter to be able to revoke all priviledges
     mapping(uint256 => mapping(bytes32 => mapping(address => bool))) private _roleStatus;
-    mapping(uint256 => mapping(bytes32 => EnumerableSetUpgradeable.AddressSet)) private _roleMembers;
+    mapping(uint256 => mapping(bytes32 => EnumerableSet.AddressSet)) private _roleMembers;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Events
@@ -61,8 +61,7 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
 
     /// @param initOwner The address of the initial owner
     function __OwnableAccessControl_init(address initOwner) internal onlyInitializing {
-        __Ownable_init();
-        _transferOwnership(initOwner);
+        __Ownable_init(initOwner);
         __OwnableAccessControl_init_unchained();
     }
 

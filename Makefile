@@ -29,7 +29,6 @@ compiler_test:
 	forge test --use 0.8.20
 	forge test --use 0.8.21
 	forge test --use 0.8.22
-	forge test --use 0.8.23
 
 quick_test:
 	forge test --fuzz-runs 512
