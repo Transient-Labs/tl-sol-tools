@@ -3,14 +3,13 @@ pragma solidity ^0.8.17;
 
 import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
-import {Errors} from "src/utils/Errors.sol";
 
 /// @title Sanctions Compliance
 /// @notice Abstract contract to comply with U.S. sanctioned addresses
 /// @dev Uses the Chainalysis Sanctions Oracle for checking sanctions
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-contract SanctionsComplianceUpgradeable is Initializable, Errors {
+contract SanctionsComplianceUpgradeable is Initializable {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
@@ -22,6 +21,13 @@ contract SanctionsComplianceUpgradeable is Initializable, Errors {
     //////////////////////////////////////////////////////////////////////////*/
 
     event SanctionsOracleUpdated(address indexed prevOracle, address indexed newOracle);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Sanctioned address by OFAC
+    error SanctionedAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Initializer

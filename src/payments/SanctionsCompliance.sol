@@ -2,15 +2,13 @@
 pragma solidity ^0.8.20;
 
 import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
-import {Errors} from "src/utils/Errors.sol";
-
 
 /// @title Sanctions Compliance
 /// @notice Abstract contract to comply with U.S. sanctioned addresses
 /// @dev Uses the Chainalysis Sanctions Oracle for checking sanctions
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-contract SanctionsCompliance is Errors {
+contract SanctionsCompliance {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
@@ -18,13 +16,20 @@ contract SanctionsCompliance is Errors {
     IChainalysisSanctionsOracle public oracle;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Events
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Sanctioned address by OFAC
+    error SanctionedAddress();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Events
     //////////////////////////////////////////////////////////////////////////*/
 
     event SanctionsOracleUpdated(address indexed prevOracle, address indexed newOracle);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Constructor
+                                    Constructor
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(address initOracle) {

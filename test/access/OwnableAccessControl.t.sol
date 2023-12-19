@@ -4,9 +4,8 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import {MockOwnableAccessControl} from "test/utils/MockOwnableAccessControl.sol";
 import {OwnableAccessControl, Ownable} from "src/access/OwnableAccessControl.sol";
-import {Errors} from "src/utils/Errors.sol";
 
-contract TestOwnableAccessControl is Test, Errors {
+contract TestOwnableAccessControl is Test {
     MockOwnableAccessControl public mockContract;
 
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
@@ -58,10 +57,10 @@ contract TestOwnableAccessControl is Test, Errors {
         mockContract.revokeAllRoles();
 
         // expect reverts on other access controlled functions
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminFunction(3);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
         mockContract.onlyMinterFunction(3);
     }
 
@@ -95,7 +94,7 @@ contract TestOwnableAccessControl is Test, Errors {
         }
 
         if (admin != minter) {
-            vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+            vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
@@ -114,13 +113,13 @@ contract TestOwnableAccessControl is Test, Errors {
 
         // check reverts happen for all functions
         vm.startPrank(admin, admin);
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminFunction(newNumberOne);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminOrOwnerFunction(newNumberTwo);
 
         if (admin != address(this)) {
@@ -129,7 +128,7 @@ contract TestOwnableAccessControl is Test, Errors {
         }
 
         if (admin != minter) {
-            vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+            vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
@@ -168,13 +167,13 @@ contract TestOwnableAccessControl is Test, Errors {
         assertEq(mockContract.number(), newNumber);
 
         // expect reverts on all other functions
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminFunction(newNumber);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminOrOwnerFunction(newNumber);
 
         if (minter != address(this)) {
@@ -199,16 +198,16 @@ contract TestOwnableAccessControl is Test, Errors {
         // expect reverts on all functions
         vm.startPrank(minter, minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
         mockContract.onlyMinterFunction(newNumber);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminFunction(newNumber);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.onlyAdminOrOwnerFunction(newNumber);
 
         if (minter != address(this)) {

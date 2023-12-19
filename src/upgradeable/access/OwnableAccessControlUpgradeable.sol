@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import {OwnableUpgradeable} from "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import {Errors} from "src/utils/Errors.sol";
 
 /// @title OwnableAccessControlUpgradeable.sol
 /// @notice Single owner, flexible access control mechanics
@@ -13,7 +12,7 @@ import {Errors} from "src/utils/Errors.sol";
 ///      may allow other roles to grant roles by using the internal helper.
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable, Errors {
+abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
@@ -25,7 +24,7 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     mapping(uint256 => mapping(bytes32 => EnumerableSet.AddressSet)) private _roleMembers;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Events
+                                    Events
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @param from Address that authorized the role change
@@ -38,7 +37,17 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     event AllRolesRevoked(address indexed from);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Modifiers
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Does not have specified role
+    error NotSpecifiedRole(bytes32 role);
+
+    /// @dev Is not specified role or owner
+    error NotRoleOrOwner(bytes32 role);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Modifiers
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier onlyRole(bytes32 role) {
@@ -56,7 +65,7 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Initializer
+                                    Initializer
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @param initOwner The address of the initial owner

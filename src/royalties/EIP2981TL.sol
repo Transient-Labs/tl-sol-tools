@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import {ERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
 import {IEIP2981} from "src/royalties/IEIP2981.sol";
-import {Errors} from "src/utils/Errors.sol";
 
 /// @title EIP2981TL.sol
 /// @notice Abstract contract to define a default royalty spec
@@ -11,7 +10,7 @@ import {Errors} from "src/utils/Errors.sol";
 /// @dev Follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-abstract contract EIP2981TL is IEIP2981, ERC165, Errors {
+abstract contract EIP2981TL is IEIP2981, ERC165 {
     /*//////////////////////////////////////////////////////////////////////////
                                 Royalty Struct
     //////////////////////////////////////////////////////////////////////////*/
@@ -24,10 +23,21 @@ abstract contract EIP2981TL is IEIP2981, ERC165, Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
+
     uint256 public constant BASIS = 10_000;
     address private _defaultRecipient;
     uint256 private _defaultPercentage;
     mapping(uint256 => RoyaltySpec) private _tokenOverrides;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev error if the recipient is set to address(0)
+    error ZeroAddressError();
+
+    /// @dev error if the royalty percentage is greater than to 100%
+    error MaxRoyaltyError();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Constructor

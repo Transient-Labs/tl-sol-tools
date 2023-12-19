@@ -7,7 +7,6 @@ import {WETH9} from "test/utils/WETH9.sol";
 import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";
 import {TransferHelper} from "src/payments/TransferHelper.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
-import {Errors} from "src/utils/Errors.sol";
 
 contract ExternalTransferHelper is TransferHelper {
 
@@ -28,7 +27,7 @@ contract ExternalTransferHelper is TransferHelper {
     }
 }
 
-contract TestTransferHelper is Test, Errors {
+contract TestTransferHelper is Test {
     ExternalTransferHelper th;
     address weth;
     address receiver;
@@ -179,7 +178,7 @@ contract TestTransferHelper is Test, Errors {
             erc20fee.approve(address(th), amount-1);
 
             // test amount with token tax ERC20
-            vm.expectRevert(InsufficentERC20Transfer.selector);
+            vm.expectRevert(TransferHelper.InsufficentERC20Transfer.selector);
             th.safeTransferFromERC20(chris, recipient, address(erc20fee), amount-1);
         }
     }

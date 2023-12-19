@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import {Errors} from "src/utils/Errors.sol";
 
 /// @title OwnableAccessControl.sol
 /// @notice Single owner, flexible access control mechanics
@@ -12,7 +11,8 @@ import {Errors} from "src/utils/Errors.sol";
 ///      may allow other roles to grant roles by using the internal helper.
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-abstract contract OwnableAccessControl is Ownable, Errors {
+abstract contract OwnableAccessControl is Ownable {
+
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
@@ -24,7 +24,7 @@ abstract contract OwnableAccessControl is Ownable, Errors {
     mapping(uint256 => mapping(bytes32 => EnumerableSet.AddressSet)) private _roleMembers;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Events
+                                    Events
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @param from Address that authorized the role change
@@ -37,7 +37,17 @@ abstract contract OwnableAccessControl is Ownable, Errors {
     event AllRolesRevoked(address indexed from);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Modifiers
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Does not have specified role
+    error NotSpecifiedRole(bytes32 role);
+
+    /// @dev Is not specified role or owner
+    error NotRoleOrOwner(bytes32 role);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Modifiers
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier onlyRole(bytes32 role) {
@@ -61,7 +71,7 @@ abstract contract OwnableAccessControl is Ownable, Errors {
     constructor() Ownable(msg.sender) {}
 
     /*//////////////////////////////////////////////////////////////////////////
-                                External Role Functions
+                            External Role Functions
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Function to revoke all roles currently present

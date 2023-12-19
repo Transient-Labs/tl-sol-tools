@@ -3,16 +3,16 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
 import {MockEIP2981TL} from "test/utils/MockEIP2981TL.sol";
-import {Errors} from "src/utils/Errors.sol";
+import {EIP2981TL} from "src/royalties/EIP2981TL.sol";
 
-contract TestEIP2981TL is Test, Errors {
+contract TestEIP2981TL is Test {
     MockEIP2981TL public mockContract;
 
     function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
         if (recipient == address(0)) {
-            vm.expectRevert(ZeroAddressError.selector);
+            vm.expectRevert(EIP2981TL.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
-            vm.expectRevert(MaxRoyaltyError.selector);
+            vm.expectRevert(EIP2981TL.MaxRoyaltyError.selector);
         }
         mockContract = new MockEIP2981TL(recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
@@ -38,9 +38,9 @@ contract TestEIP2981TL is Test, Errors {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TL(defaultRecipient, 10_000);
         if (recipient == address(0)) {
-            vm.expectRevert(ZeroAddressError.selector);
+            vm.expectRevert(EIP2981TL.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
-            vm.expectRevert(MaxRoyaltyError.selector);
+            vm.expectRevert(EIP2981TL.MaxRoyaltyError.selector);
         }
         mockContract.setDefaultRoyalty(recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
@@ -58,9 +58,9 @@ contract TestEIP2981TL is Test, Errors {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TL(defaultRecipient, 10_000);
         if (recipient == address(0)) {
-            vm.expectRevert(ZeroAddressError.selector);
+            vm.expectRevert(EIP2981TL.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
-            vm.expectRevert(MaxRoyaltyError.selector);
+            vm.expectRevert(EIP2981TL.MaxRoyaltyError.selector);
         }
         mockContract.setTokenRoyalty(tokenId, recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
