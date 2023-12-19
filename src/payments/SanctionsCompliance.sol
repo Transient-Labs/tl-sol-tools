@@ -1,35 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
-/*//////////////////////////////////////////////////////////////////////////
-                            Chainalysis Sanctions Oracle
-//////////////////////////////////////////////////////////////////////////*/
+import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
+import {Errors} from "src/utils/Errors.sol";
 
-interface ChainalysisSanctionsOracle {
-    function isSanctioned(address addr) external view returns (bool);
-}
-
-/*//////////////////////////////////////////////////////////////////////////
-                              Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-error SanctionedAddress();
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Sanctions Compliance
-//////////////////////////////////////////////////////////////////////////*/
 
 /// @title Sanctions Compliance
 /// @notice Abstract contract to comply with U.S. sanctioned addresses
 /// @dev Uses the Chainalysis Sanctions Oracle for checking sanctions
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.5.0
-contract SanctionsCompliance {
+/// @custom:version 3.0.0
+contract SanctionsCompliance is Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
 
-    ChainalysisSanctionsOracle public oracle;
+    IChainalysisSanctionsOracle public oracle;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Events
@@ -53,7 +39,7 @@ contract SanctionsCompliance {
     /// @param newOracle The new sanctions oracle address
     function _updateSanctionsOracle(address newOracle) internal {
         address prevOracle = address(oracle);
-        oracle = ChainalysisSanctionsOracle(newOracle);
+        oracle = IChainalysisSanctionsOracle(newOracle);
 
         emit SanctionsOracleUpdated(prevOracle, newOracle);
     }

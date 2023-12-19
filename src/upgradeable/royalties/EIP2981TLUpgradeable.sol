@@ -1,31 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
-import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import {ERC165Upgradeable} from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
-import {IEIP2981} from "../../royalties/IEIP2981.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Custom Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @dev error if the recipient is set to address(0)
-error ZeroAddressError();
-
-/// @dev error if the royalty percentage is greater than to 100%
-error MaxRoyaltyError();
-
-/*//////////////////////////////////////////////////////////////////////////
-                            EIP2981TL
-//////////////////////////////////////////////////////////////////////////*/
+import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {ERC165Upgradeable} from "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol";
+import {IEIP2981} from "src/royalties/IEIP2981.sol";
+import {Errors} from "src/utils/Errors.sol";
 
 /// @title EIP2981TLUpgradeable.sol
-/// @notice abstract contract to define a default royalty spec
+/// @notice Abstract contract to define a default royalty spec
 ///         while allowing for specific token overrides
-/// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
+/// @dev Follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.2.2
-abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
+/// @custom:version 3.0.0
+abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable, Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                 Royalty Struct
     //////////////////////////////////////////////////////////////////////////*/
@@ -38,7 +25,7 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
-
+    uint256 public constant BASIS = 10_000;
     address private _defaultRecipient;
     uint256 private _defaultPercentage;
     mapping(uint256 => RoyaltySpec) private _tokenOverrides;
@@ -47,16 +34,16 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
                                 Initializer
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice function to initialize the contract
-    /// @param defaultRecipient - the default royalty payout address
-    /// @param defaultPercentage - the deafult royalty percentage, out of 10,000
+    /// @notice Function to initialize the contract
+    /// @param defaultRecipient The default royalty payout address
+    /// @param defaultPercentage The deafult royalty percentage, out of 10,000
     function __EIP2981TL_init(address defaultRecipient, uint256 defaultPercentage) internal onlyInitializing {
         __EIP2981TL_init_unchained(defaultRecipient, defaultPercentage);
     }
 
-    /// @notice unchained function to initialize the contract
-    /// @param defaultRecipient - the default royalty payout address
-    /// @param defaultPercentage - the deafult royalty percentage, out of 10,000
+    /// @notice Unchained function to initialize the contract
+    /// @param defaultRecipient The default royalty payout address
+    /// @param defaultPercentage The deafult royalty percentage, out of 10,000
     function __EIP2981TL_init_unchained(address defaultRecipient, uint256 defaultPercentage)
         internal
         onlyInitializing
@@ -68,9 +55,9 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
                                 Royalty Changing Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice function to set default royalty info
-    /// @param newRecipient - the new default royalty payout address
-    /// @param newPercentage - the new default royalty percentage, out of 10,000
+    /// @notice Function to set default royalty info
+    /// @param newRecipient The new default royalty payout address
+    /// @param newPercentage The new default royalty percentage, out of 10,000
     function _setDefaultRoyaltyInfo(address newRecipient, uint256 newPercentage) internal {
         if (newRecipient == address(0)) revert ZeroAddressError();
         if (newPercentage > 10_000) revert MaxRoyaltyError();
@@ -78,10 +65,10 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
         _defaultPercentage = newPercentage;
     }
 
-    /// @notice function to override royalty spec on a specific token
-    /// @param tokenId - the token id to override royalty for
-    /// @param newRecipient - the new royalty payout address
-    /// @param newPercentage - the new royalty percentage, out of 10,000
+    /// @notice Function to override royalty spec on a specific token
+    /// @param tokenId The token id to override royalty for
+    /// @param newRecipient The new royalty payout address
+    /// @param newPercentage The new royalty percentage, out of 10,000
     function _overrideTokenRoyaltyInfo(uint256 tokenId, address newRecipient, uint256 newPercentage) internal {
         if (newRecipient == address(0)) revert ZeroAddressError();
         if (newPercentage > 10_000) revert MaxRoyaltyError();
@@ -105,7 +92,7 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
             recipient = _tokenOverrides[tokenId].recipient;
             percentage = _tokenOverrides[tokenId].percentage;
         }
-        return (recipient, salePrice / 10_000 * percentage); // divide first to avoid overflow
+        return (recipient, salePrice * percentage / BASIS);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -131,6 +118,6 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
                                 Upgradeability Gap
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+    /// @dev Gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
     uint256[50] private _gap;
 }

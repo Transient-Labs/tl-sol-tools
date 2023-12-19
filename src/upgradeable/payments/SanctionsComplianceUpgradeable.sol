@@ -1,37 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Chainalysis Sanctions Oracle
-//////////////////////////////////////////////////////////////////////////*/
-
-interface ChainalysisSanctionsOracle {
-    function isSanctioned(address addr) external view returns (bool);
-}
-
-/*//////////////////////////////////////////////////////////////////////////
-                              Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-error SanctionedAddress();
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Sanctions Compliance
-//////////////////////////////////////////////////////////////////////////*/
+import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
+import {Errors} from "src/utils/Errors.sol";
 
 /// @title Sanctions Compliance
 /// @notice Abstract contract to comply with U.S. sanctioned addresses
 /// @dev Uses the Chainalysis Sanctions Oracle for checking sanctions
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.5.0
-contract SanctionsComplianceUpgradeable is Initializable {
+/// @custom:version 3.0.0
+contract SanctionsComplianceUpgradeable is Initializable, Errors {
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
 
-    ChainalysisSanctionsOracle public oracle;
+    IChainalysisSanctionsOracle public oracle;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Events
@@ -66,7 +50,7 @@ contract SanctionsComplianceUpgradeable is Initializable {
     /// @param newOracle The new sanctions oracle address
     function _updateSanctionsOracle(address newOracle) internal {
         address prevOracle = address(oracle);
-        oracle = ChainalysisSanctionsOracle(newOracle);
+        oracle = IChainalysisSanctionsOracle(newOracle);
 
         emit SanctionsOracleUpdated(prevOracle, newOracle);
     }

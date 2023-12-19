@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {SanctionsComplianceUpgradeable, ChainalysisSanctionsOracle, SanctionedAddress} from "tl-sol-tools/upgradeable/payments/SanctionsComplianceUpgradeable.sol";
+import {SanctionsComplianceUpgradeable} from "src/upgradeable/payments/SanctionsComplianceUpgradeable.sol";
+import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
 
 contract SanctionsComplianceUpgradeableTest is Test, SanctionsComplianceUpgradeable {
 
@@ -37,7 +38,7 @@ contract SanctionsComplianceUpgradeableTest is Test, SanctionsComplianceUpgradea
         vm.assume(newOracle != address(0));
         _updateSanctionsOracle(newOracle);
 
-        vm.mockCall(newOracle, abi.encodeWithSelector(ChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(isSanctioned_));
+        vm.mockCall(newOracle, abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(isSanctioned_));
 
         if (isSanctioned_ && shouldRevert) {
             vm.expectRevert(SanctionedAddress.selector);

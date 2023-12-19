@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pragma solidity ^0.8.17;
-
-import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import {OwnableAccessControlUpgradeable} from "tl-sol-tools/upgradeable/access/OwnableAccessControlUpgradeable.sol";
+import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {OwnableAccessControlUpgradeable} from "src/upgradeable/access/OwnableAccessControlUpgradeable.sol";
 
 contract MockOwnableAccessControlUpgradeable is Initializable, OwnableAccessControlUpgradeable {
     uint256 public number;

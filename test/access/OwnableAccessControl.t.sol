@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {MockOwnableAccessControl} from "../utils/MockOwnableAccessControl.sol";
-import {OwnableAccessControl, NotRoleOrOwner, NotSpecifiedRole} from "tl-sol-tools/access/OwnableAccessControl.sol";
+import {MockOwnableAccessControl} from "test/utils/MockOwnableAccessControl.sol";
+import {OwnableAccessControl} from "src/access/OwnableAccessControl.sol";
+import {Errors} from "src/utils/Errors.sol";
 
-contract TestOwnableAccessControl is Test {
+contract TestOwnableAccessControl is Test, Errors {
     MockOwnableAccessControl public mockContract;
 
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
     event AllRolesRevoked(address indexed from);
 
-    function testInitialValues() public {
+    function test_InitialValues() public {
         mockContract = new MockOwnableAccessControl();
         // expect default owner and number
         assertEq(mockContract.owner(), address(this));
         assertEq(mockContract.number(), 0);
     }
 
-    function testOwnerRole() public {
+    function test_OwnerRole() public {
         mockContract = new MockOwnableAccessControl();
         // expect owner can change the number
         mockContract.onlyOwnerFunction(1);
@@ -65,7 +65,7 @@ contract TestOwnableAccessControl is Test {
         mockContract.onlyMinterFunction(3);
     }
 
-    function testAdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
+    function test_AdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
         mockContract = new MockOwnableAccessControl();
         address[] memory admins = new address[](1);
         admins[0] = admin;
@@ -151,7 +151,7 @@ contract TestOwnableAccessControl is Test {
         vm.stopPrank();
     }
 
-    function testMinterRole(address minter, uint256 newNumber) public {
+    function test_MinterRole(address minter, uint256 newNumber) public {
         mockContract = new MockOwnableAccessControl();
         // grant minter role and expect proper event log
         address[] memory minters = new address[](1);

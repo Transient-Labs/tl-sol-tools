@@ -1,20 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
-import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import {TransferHelper} from "../../payments/TransferHelper.sol";
-import {SanctionsComplianceUpgradeable} from "./SanctionsComplianceUpgradeable.sol";
-import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                        Royalty Payout Helper
-//////////////////////////////////////////////////////////////////////////*/
+import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {TransferHelper} from "src/payments/TransferHelper.sol";
+import {SanctionsComplianceUpgradeable} from "src/upgradeable/payments/SanctionsComplianceUpgradeable.sol";
+import {IRoyaltyEngineV1} from "lib/royalty-registry-solidity/contracts/IRoyaltyEngineV1.sol";
 
 /// @title Royalty Payout Helper
 /// @notice Abstract contract to help payout royalties using the Royalty Registry
 /// @dev Does not manage updating the sanctions oracle and expects the child contract to implement
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.4.0
+/// @custom:version 3.0.0
 abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelper, SanctionsComplianceUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                   State Variables

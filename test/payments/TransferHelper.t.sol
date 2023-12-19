@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {Receiver, RevertingReceiver, GriefingReceiver} from "../utils/Receivers.sol";
-import {WETH9} from "../utils/WETH9.sol";
-import {MockERC20, MockERC20WithFee} from "../utils/MockERC20.sol";
-import {TransferHelper, ETHTransferFailed, InsufficentERC20Transfer} from "tl-sol-tools/payments/TransferHelper.sol";
-import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
+import {Receiver, RevertingReceiver, GriefingReceiver} from "test/utils/Receivers.sol";
+import {WETH9} from "test/utils/WETH9.sol";
+import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";
+import {TransferHelper} from "src/payments/TransferHelper.sol";
+import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {Errors} from "src/utils/Errors.sol";
 
 contract ExternalTransferHelper is TransferHelper {
 
@@ -27,7 +28,7 @@ contract ExternalTransferHelper is TransferHelper {
     }
 }
 
-contract TestTransferHelper is Test {
+contract TestTransferHelper is Test, Errors {
     ExternalTransferHelper th;
     address weth;
     address receiver;
@@ -50,7 +51,7 @@ contract TestTransferHelper is Test {
         erc20fee = new MockERC20WithFee(ben);
     }
 
-    function testSafeTransferETH(address recipient, uint256 amount) public {
+    function test_SafeTransferETH(address recipient, uint256 amount) public {
 
         vm.assume(
             recipient.code.length == 0 && recipient > address(100)
@@ -83,7 +84,7 @@ contract TestTransferHelper is Test {
         assert(IERC20(weth).balanceOf(griefingReceiver) - b4 == amount);
     }
 
-    function testSafeTransferETHWithGasLimit(address recipient, uint256 amount) public {
+    function test_SafeTransferETHWithGasLimit(address recipient, uint256 amount) public {
         vm.assume(
             recipient.code.length == 0 && recipient > address(100)
         );
@@ -115,7 +116,7 @@ contract TestTransferHelper is Test {
         assert(IERC20(weth).balanceOf(griefingReceiver) - b4 == amount);
     }
 
-    function testSafeTransferERC20(address recipient, uint256 amount) public {
+    function test_SafeTransferERC20(address recipient, uint256 amount) public {
 
         vm.assume(recipient != address(0) && recipient != address(th) && amount > 0);
         
@@ -140,7 +141,7 @@ contract TestTransferHelper is Test {
         }
     }
 
-    function testSafeTransferFromERC20(address recipient, uint256 amount) public {
+    function test_SafeTransferFromERC20(address recipient, uint256 amount) public {
         vm.assume(recipient != address(0) && recipient != address(th) && amount > 0);
 
         // fund chris

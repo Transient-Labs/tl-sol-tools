@@ -1,22 +1,20 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {MockOwnableAccessControlUpgradeable} from "../../utils/MockOwnableAccessControlUpgradeable.sol";
+import {MockOwnableAccessControlUpgradeable} from "test/utils/MockOwnableAccessControlUpgradeable.sol";
 import {
-    OwnableAccessControlUpgradeable,
-    NotRoleOrOwner,
-    NotSpecifiedRole
-} from "tl-sol-tools/upgradeable/access/OwnableAccessControlUpgradeable.sol";
+    OwnableAccessControlUpgradeable
+} from "src/upgradeable/access/OwnableAccessControlUpgradeable.sol";
+import {Errors} from "src/utils/Errors.sol";
 
-contract TestOwnableAccessControl is Test {
+contract TestOwnableAccessControl is Test, Errors {
     MockOwnableAccessControlUpgradeable public mockContract;
 
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
     event AllRolesRevoked(address indexed from);
 
-    function testInitialization(address owner) public {
+    function test_Initialization(address owner) public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         mockContract = new MockOwnableAccessControlUpgradeable();
@@ -24,7 +22,7 @@ contract TestOwnableAccessControl is Test {
         assertEq(mockContract.owner(), owner);
     }
 
-    function testInitialValues() public {
+    function test_InitialValues() public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // expect default owner and number
@@ -32,7 +30,7 @@ contract TestOwnableAccessControl is Test {
         assertEq(mockContract.number(), 0);
     }
 
-    function testOwnerRole() public {
+    function test_OwnerRole() public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // expect owner can change the number
@@ -79,7 +77,7 @@ contract TestOwnableAccessControl is Test {
         mockContract.onlyMinterFunction(3);
     }
 
-    function testAdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
+    function test_AdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         address[] memory admins = new address[](1);
@@ -166,7 +164,7 @@ contract TestOwnableAccessControl is Test {
         vm.stopPrank();
     }
 
-    function testMinterRole(address minter, uint256 newNumber) public {
+    function test_MinterRole(address minter, uint256 newNumber) public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // grant minter role and expect proper event log

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
 
-pragma solidity ^0.8.17;
-
-import {OwnableAccessControl} from "tl-sol-tools/access/OwnableAccessControl.sol";
+import {OwnableAccessControl} from "src/access/OwnableAccessControl.sol";
 
 contract MockOwnableAccessControl is OwnableAccessControl {
     uint256 public number;
