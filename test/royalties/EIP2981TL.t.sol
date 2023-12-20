@@ -8,7 +8,9 @@ import {EIP2981TL} from "src/royalties/EIP2981TL.sol";
 contract TestEIP2981TL is Test {
     MockEIP2981TL public mockContract;
 
-    function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
+    function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
+        public
+    {
         if (recipient == address(0)) {
             vm.expectRevert(EIP2981TL.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
@@ -34,7 +36,9 @@ contract TestEIP2981TL is Test {
         }
     }
 
-    function test_OverrideDefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
+    function test_OverrideDefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
+        public
+    {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TL(defaultRecipient, 10_000);
         if (recipient == address(0)) {
@@ -54,7 +58,9 @@ contract TestEIP2981TL is Test {
         }
     }
 
-    function test_OverrideTokenRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
+    function test_OverrideTokenRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
+        public
+    {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TL(defaultRecipient, 10_000);
         if (recipient == address(0)) {

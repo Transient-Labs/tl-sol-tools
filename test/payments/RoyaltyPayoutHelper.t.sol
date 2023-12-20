@@ -10,8 +10,9 @@ import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOra
 import {Strings} from "openzeppelin/utils/Strings.sol";
 
 contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
-
-    constructor(address sanctionsAddress, address wethAddress, address royaltyEngineAddress) RoyaltyPayoutHelper(sanctionsAddress, wethAddress, royaltyEngineAddress) {}
+    constructor(address sanctionsAddress, address wethAddress, address royaltyEngineAddress)
+        RoyaltyPayoutHelper(sanctionsAddress, wethAddress, royaltyEngineAddress)
+    {}
 
     function setWethAddress(address wethAddress) external {
         _setWethAddress(wethAddress);
@@ -21,7 +22,10 @@ contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
         _setRoyaltyEngineAddress(royaltyEngineAddress);
     }
 
-    function payoutRoyalties(address token, uint256 tokenId, address currency, uint256 salePrice) external returns(uint256) {
+    function payoutRoyalties(address token, uint256 tokenId, address currency, uint256 salePrice)
+        external
+        returns (uint256)
+    {
         return _payoutRoyalties(token, tokenId, currency, salePrice);
     }
 
@@ -31,7 +35,6 @@ contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
 }
 
 contract TestRoyaltyPayoutHelper is Test {
-
     using Strings for uint256;
 
     ExternalRoyaltyPayoutHelper rph;
@@ -78,11 +81,7 @@ contract TestRoyaltyPayoutHelper is Test {
     }
 
     function test_PayoutRoyaltiesRevertingQuery(uint256 salePrice) public {
-        vm.mockCallRevert(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            "fail fail"
-        );
+        vm.mockCallRevert(royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), "fail fail");
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
         assert(remainingSale == salePrice);
@@ -91,14 +90,11 @@ contract TestRoyaltyPayoutHelper is Test {
     }
 
     function test_PayoutRoyaltiesUnequalLengthArrays(uint256 salePrice) public {
-
         address[] memory recipients = new address[](1);
         recipients[0] = address(1);
         uint256[] memory amounts = new uint256[](0);
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
@@ -108,13 +104,10 @@ contract TestRoyaltyPayoutHelper is Test {
     }
 
     function test_PayoutRoyaltiesZeroLengthArrays(uint256 salePrice) public {
-
         address[] memory recipients = new address[](0);
         uint256[] memory amounts = new uint256[](0);
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
@@ -135,9 +128,7 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.deal(address(rph), price);
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), price);
@@ -162,18 +153,14 @@ contract TestRoyaltyPayoutHelper is Test {
         }
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         if (sanctionsCompliance) {
             address newOracle = makeAddr("Sanctions compliance is soooooo fun");
             rph.updateSanctionsOracle(newOracle);
             vm.mockCall(
-                newOracle,
-                abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector),
-                abi.encode(true)
+                newOracle, abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(true)
             );
         }
 
@@ -211,18 +198,14 @@ contract TestRoyaltyPayoutHelper is Test {
         }
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         if (sanctionsCompliance) {
             address newOracle = makeAddr("Sanctions compliance is soooooo fun");
             rph.updateSanctionsOracle(newOracle);
             vm.mockCall(
-                newOracle,
-                abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector),
-                abi.encode(true)
+                newOracle, abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(true)
             );
         }
 
@@ -261,21 +244,18 @@ contract TestRoyaltyPayoutHelper is Test {
         }
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         vm.prank(ben);
-        erc20fee.transfer(address(rph), uint256(salePrice)+1);
+        erc20fee.transfer(address(rph), uint256(salePrice) + 1);
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(erc20fee), uint256(salePrice));
         assert(remainingAmount == remainingSale);
         for (uint256 i = 0; i < numRecipients; i++) {
-            assert(erc20fee.balanceOf(recipients[i]) == price-1);
+            assert(erc20fee.balanceOf(recipients[i]) == price - 1);
         }
 
         vm.clearMockedCalls();
     }
-
 }

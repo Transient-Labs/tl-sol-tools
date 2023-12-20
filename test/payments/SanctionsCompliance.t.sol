@@ -6,7 +6,6 @@ import {SanctionsCompliance} from "src/payments/SanctionsCompliance.sol";
 import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
 
 contract SanctionsComplianceTest is Test, SanctionsCompliance {
-
     constructor() SanctionsCompliance(address(0)) {}
 
     function test_init(address sender) public view {
@@ -22,7 +21,7 @@ contract SanctionsComplianceTest is Test, SanctionsCompliance {
         assert(address(oracle) == newOracle);
     }
 
-    function isSanctioned(address sender, bool shouldRevert) external view returns(bool) {
+    function isSanctioned(address sender, bool shouldRevert) external view returns (bool) {
         return _isSanctioned(sender, shouldRevert);
     }
 
@@ -32,7 +31,11 @@ contract SanctionsComplianceTest is Test, SanctionsCompliance {
         vm.assume(newOracle != address(0));
         _updateSanctionsOracle(newOracle);
 
-        vm.mockCall(newOracle, abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(isSanctioned_));
+        vm.mockCall(
+            newOracle,
+            abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector),
+            abi.encode(isSanctioned_)
+        );
 
         if (isSanctioned_ && shouldRevert) {
             vm.expectRevert(SanctionedAddress.selector);

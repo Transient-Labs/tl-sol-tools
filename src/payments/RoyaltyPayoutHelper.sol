@@ -25,7 +25,9 @@ abstract contract RoyaltyPayoutHelper is TransferHelper, SanctionsCompliance {
     /// @param sanctionsOracle - the init sanctions oracle
     /// @param wethAddress - the init weth address
     /// @param royaltyEngineAddress - the init royalty engine address
-    constructor(address sanctionsOracle, address wethAddress, address royaltyEngineAddress) SanctionsCompliance(sanctionsOracle) {
+    constructor(address sanctionsOracle, address wethAddress, address royaltyEngineAddress)
+        SanctionsCompliance(sanctionsOracle)
+    {
         weth = wethAddress;
         royaltyEngine = IRoyaltyEngineV1(royaltyEngineAddress);
     }
@@ -55,7 +57,7 @@ abstract contract RoyaltyPayoutHelper is TransferHelper, SanctionsCompliance {
     /// @notice Function to payout royalties from the contract balance based on sale price
     /// @dev if the call to the royalty engine reverts or if the return values are invalid, no payments are made
     /// @dev if the sum of the royalty payouts is greater than the salePrice, the loop exits early for gas savings (this shouldn't happen in reality)
-    /// @dev if this is used in a call where tokens should be transferred from a sender, it is advisable to 
+    /// @dev if this is used in a call where tokens should be transferred from a sender, it is advisable to
     ///      first transfer the required amount to the contract and then call this function, as it will save on gas
     /// @param token The contract address for the token
     /// @param tokenId The token id

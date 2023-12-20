@@ -9,7 +9,6 @@ import {TransferHelper} from "src/payments/TransferHelper.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract ExternalTransferHelper is TransferHelper {
-
     function safeTransferETH(address recipient, uint256 amount, address weth) external {
         _safeTransferETH(recipient, amount, weth);
     }
@@ -51,10 +50,7 @@ contract TestTransferHelper is Test {
     }
 
     function test_SafeTransferETH(address recipient, uint256 amount) public {
-
-        vm.assume(
-            recipient.code.length == 0 && recipient > address(100)
-        );
+        vm.assume(recipient.code.length == 0 && recipient > address(100));
 
         vm.assume(amount < 1_000_000_000_000_000_000 ether);
 
@@ -84,9 +80,7 @@ contract TestTransferHelper is Test {
     }
 
     function test_SafeTransferETHWithGasLimit(address recipient, uint256 amount) public {
-        vm.assume(
-            recipient.code.length == 0 && recipient > address(100)
-        );
+        vm.assume(recipient.code.length == 0 && recipient > address(100));
 
         vm.assume(amount < 1_000_000_000_000_000_000 ether);
 
@@ -116,9 +110,8 @@ contract TestTransferHelper is Test {
     }
 
     function test_SafeTransferERC20(address recipient, uint256 amount) public {
-
         vm.assume(recipient != address(0) && recipient != address(th) && amount > 0);
-        
+
         // fund contract
         vm.prank(ben);
         erc20.transfer(address(th), amount);
@@ -135,8 +128,8 @@ contract TestTransferHelper is Test {
 
             // test amount with token tax ERC20
             uint256 b2 = erc20fee.balanceOf(recipient);
-            th.safeTransferERC20(recipient, address(erc20fee), amount-1);
-            assert(erc20fee.balanceOf(recipient) - b2 == amount-2);
+            th.safeTransferERC20(recipient, address(erc20fee), amount - 1);
+            assert(erc20fee.balanceOf(recipient) - b2 == amount - 2);
         }
     }
 
@@ -171,16 +164,15 @@ contract TestTransferHelper is Test {
 
             // test failure for allowance
             vm.expectRevert();
-            th.safeTransferFromERC20(chris, recipient, address(erc20fee), amount-1);
+            th.safeTransferFromERC20(chris, recipient, address(erc20fee), amount - 1);
 
             // give allowance
             vm.prank(chris);
-            erc20fee.approve(address(th), amount-1);
+            erc20fee.approve(address(th), amount - 1);
 
             // test amount with token tax ERC20
             vm.expectRevert(TransferHelper.InsufficentERC20Transfer.selector);
-            th.safeTransferFromERC20(chris, recipient, address(erc20fee), amount-1);
+            th.safeTransferFromERC20(chris, recipient, address(erc20fee), amount - 1);
         }
     }
-
 }

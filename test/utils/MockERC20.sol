@@ -17,7 +17,7 @@ contract MockERC20WithFee is ERC20 {
     function transfer(address to, uint256 value) public override returns (bool) {
         address owner = _msgSender();
         _burn(owner, 1);
-        _transfer(owner, to, value-1);
+        _transfer(owner, to, value - 1);
         return true;
     }
 
@@ -25,7 +25,7 @@ contract MockERC20WithFee is ERC20 {
         address spender = _msgSender();
         _spendAllowance(from, spender, value);
         _burn(from, 1);
-        _transfer(from, to, value-1);
+        _transfer(from, to, value - 1);
         return true;
     }
 }

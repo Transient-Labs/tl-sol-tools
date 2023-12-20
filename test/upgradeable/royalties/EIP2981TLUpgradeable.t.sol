@@ -8,7 +8,9 @@ import {EIP2981TLUpgradeable} from "src/upgradeable/royalties/EIP2981TLUpgradeab
 contract TestEIP2981TLUpgradeable is Test {
     MockEIP2981TLUpgradeable public mockContract;
 
-    function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
+    function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
+        public
+    {
         mockContract = new MockEIP2981TLUpgradeable();
         if (recipient == address(0)) {
             vm.expectRevert(EIP2981TLUpgradeable.ZeroAddressError.selector);
@@ -36,7 +38,9 @@ contract TestEIP2981TLUpgradeable is Test {
         }
     }
 
-    function test_OverrideDefaultRoyalty(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
+    function test_OverrideDefaultRoyalty(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
+        public
+    {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TLUpgradeable();
         mockContract.initialize(defaultRecipient, 10_000);
@@ -57,7 +61,9 @@ contract TestEIP2981TLUpgradeable is Test {
         }
     }
 
-    function test_OverrideTokenRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount) public {
+    function test_OverrideTokenRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
+        public
+    {
         address defaultRecipient = makeAddr("account");
         mockContract = new MockEIP2981TLUpgradeable();
         mockContract.initialize(defaultRecipient, 10_000);

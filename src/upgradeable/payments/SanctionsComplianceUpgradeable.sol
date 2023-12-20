@@ -41,10 +41,7 @@ contract SanctionsComplianceUpgradeable is Initializable {
 
     /// @notice unchained function to initialize the contract
     /// @param initOracle The initial oracle address
-    function __SanctionsCompliance_init_unchained(address initOracle)
-        internal
-        onlyInitializing
-    {
+    function __SanctionsCompliance_init_unchained(address initOracle) internal onlyInitializing {
         _updateSanctionsOracle(initOracle);
     }
 

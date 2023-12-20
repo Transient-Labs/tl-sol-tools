@@ -12,7 +12,6 @@ import {Ownable} from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
 abstract contract OwnableAccessControl is Ownable {
-
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/

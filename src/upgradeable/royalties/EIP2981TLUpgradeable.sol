@@ -2,7 +2,8 @@
 pragma solidity ^0.8.20;
 
 import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {ERC165Upgradeable} from "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol";
+import {ERC165Upgradeable} from
+    "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol";
 import {IEIP2981} from "src/royalties/IEIP2981.sol";
 
 /// @title EIP2981TLUpgradeable.sol
@@ -24,7 +25,7 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     /*//////////////////////////////////////////////////////////////////////////
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
-    
+
     uint256 public constant BASIS = 10_000;
     address private _defaultRecipient;
     uint256 private _defaultPercentage;

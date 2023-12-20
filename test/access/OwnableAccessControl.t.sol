@@ -57,10 +57,14 @@ contract TestOwnableAccessControl is Test {
         mockContract.revokeAllRoles();
 
         // expect reverts on other access controlled functions
-        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(3);
 
-        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE())
+        );
         mockContract.onlyMinterFunction(3);
     }
 
@@ -94,7 +98,9 @@ contract TestOwnableAccessControl is Test {
         }
 
         if (admin != minter) {
-            vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+            vm.expectRevert(
+                abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE())
+            );
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
@@ -116,7 +122,9 @@ contract TestOwnableAccessControl is Test {
         vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(newNumberOne);
 
         vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
@@ -128,7 +136,9 @@ contract TestOwnableAccessControl is Test {
         }
 
         if (admin != minter) {
-            vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+            vm.expectRevert(
+                abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE())
+            );
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
@@ -170,7 +180,9 @@ contract TestOwnableAccessControl is Test {
         vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(newNumber);
 
         vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
@@ -198,13 +210,17 @@ contract TestOwnableAccessControl is Test {
         // expect reverts on all functions
         vm.startPrank(minter, minter);
 
-        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.MINTER_ROLE())
+        );
         mockContract.onlyMinterFunction(newNumber);
 
         vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControl.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(newNumber);
 
         vm.expectRevert(abi.encodeWithSelector(OwnableAccessControl.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
