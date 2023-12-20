@@ -11,10 +11,22 @@ import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOra
 /// @custom:version 3.0.0
 contract SanctionsComplianceUpgradeable is Initializable {
     /*//////////////////////////////////////////////////////////////////////////
-                                State Variables
+                                    Storage
     //////////////////////////////////////////////////////////////////////////*/
 
-    IChainalysisSanctionsOracle public oracle;
+    /// @custom:storage-location erc7201:transientlabs.storage.SanctionsCompliance
+    struct SanctionComplianceStorage {
+        IChainalysisSanctionsOracle oracle;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.SanctionsCompliance")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant SanctionComplianceStorageLocation = 0xd66684c5a7747baca4a45cbf84c01526f3b53186fc4aea64a4c6e2fa4447c700;
+
+    function _getSanctionsComplianceStorage() private pure returns (SanctionComplianceStorage storage $) {
+        assembly {
+            $.slot := SanctionComplianceStorageLocation
+        }
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Events
@@ -52,8 +64,9 @@ contract SanctionsComplianceUpgradeable is Initializable {
     /// @notice Internal function to change the sanctions oracle
     /// @param newOracle The new sanctions oracle address
     function _updateSanctionsOracle(address newOracle) internal {
-        address prevOracle = address(oracle);
-        oracle = IChainalysisSanctionsOracle(newOracle);
+        SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
+        address prevOracle = address($.oracle);
+        $.oracle = IChainalysisSanctionsOracle(newOracle);
 
         emit SanctionsOracleUpdated(prevOracle, newOracle);
     }
@@ -64,11 +77,22 @@ contract SanctionsComplianceUpgradeable is Initializable {
     /// @param shouldRevertIfSanctioned A flag indicating if the call should revert if the sender is sanctioned. Set to false if wanting to get a result.
     /// @return isSanctioned Boolean indicating if the sender is sanctioned
     function _isSanctioned(address sender, bool shouldRevertIfSanctioned) internal view returns (bool isSanctioned) {
-        if (address(oracle) == address(0)) {
+        SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
+        if (address($.oracle) == address(0)) {
             return false;
         }
-        isSanctioned = oracle.isSanctioned(sender);
+        isSanctioned = $.oracle.isSanctioned(sender);
         if (shouldRevertIfSanctioned && isSanctioned) revert SanctionedAddress();
         return isSanctioned;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            Public View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Function to get chainalysis oracle
+    function oracle() public view returns(IChainalysisSanctionsOracle) {
+        SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
+        return $.oracle;
     }
 }

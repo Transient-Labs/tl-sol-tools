@@ -2,12 +2,12 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {Receiver, RevertingReceiver} from "../utils/Receivers.sol";
-import {WETH9} from "../utils/WETH9.sol";
-import {MockERC20, MockERC20WithFee} from "../utils/MockERC20.sol";
-import {RoyaltyPayoutHelper, IRoyaltyEngineV1} from "tl-sol-tools/payments/RoyaltyPayoutHelper.sol";
+import {Receiver, RevertingReceiver} from "test/utils/Receivers.sol";
+import {WETH9} from "test/utils/WETH9.sol";
+import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";
+import {RoyaltyPayoutHelper, IRoyaltyEngineV1} from "src/payments/RoyaltyPayoutHelper.sol";
 import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
-import {Strings} from "openzeppelin/utils/Strings.sol";
+import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
     constructor(address sanctionsAddress, address wethAddress, address royaltyEngineAddress)

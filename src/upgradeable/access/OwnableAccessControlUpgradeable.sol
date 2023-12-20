@@ -13,15 +13,32 @@ import {OwnableUpgradeable} from "lib/openzeppelin-contracts-upgradeable/contrac
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
 abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
+
     /*//////////////////////////////////////////////////////////////////////////
-                                State Variables
+                                    Types
     //////////////////////////////////////////////////////////////////////////*/
 
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 private _c; // counter to be able to revoke all priviledges
-    mapping(uint256 => mapping(bytes32 => mapping(address => bool))) private _roleStatus;
-    mapping(uint256 => mapping(bytes32 => EnumerableSet.AddressSet)) private _roleMembers;
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Storage
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @custom:storage-location erc7201:transientlabs.storage.OwnableAccessControl
+    struct OwnableAccessControlStorage {
+        uint256 c; // counter to be able to revoke all priviledges
+        mapping(uint256 => mapping(bytes32 => mapping(address => bool))) roleStatus;
+        mapping(uint256 => mapping(bytes32 => EnumerableSet.AddressSet)) roleMembers;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.OwnableAccessControl")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant OwnableAccessControlStorageLocation = 0x0d0469b3d32e63681b9fc586a5627ad5e70b3d1ad20f31767e4b6c4141c7e300;
+
+    function _getOwnableAccessControlStorage() private pure returns (OwnableAccessControlStorage storage $) {
+        assembly {
+            $.slot := OwnableAccessControlStorageLocation
+        }
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     Events
@@ -84,7 +101,8 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @dev Increments the `_c` variables
     /// @dev Requires owner privileges
     function revokeAllRoles() external onlyOwner {
-        _c++;
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
+        $.c++;
         emit AllRolesRevoked(msg.sender);
     }
 
@@ -114,13 +132,15 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @param role Bytes32 role created in inheriting contracts
     /// @param potentialRoleMember Address to check for role membership
     function hasRole(bytes32 role, address potentialRoleMember) public view returns (bool) {
-        return _roleStatus[_c][role][potentialRoleMember];
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
+        return $.roleStatus[$.c][role][potentialRoleMember];
     }
 
     /// @notice Function to get role members
     /// @param role Bytes32 role created in inheriting contracts
     function getRoleMembers(bytes32 role) public view returns (address[] memory) {
-        return _roleMembers[_c][role].values();
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
+        return $.roleMembers[$.c][role].values();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -132,21 +152,15 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     /// @param roleMembers List of addresses that should have roles attached to them based on `status`
     /// @param status Bool whether to remove or add `roleMembers` to the `role`
     function _setRole(bytes32 role, address[] memory roleMembers, bool status) internal {
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
         for (uint256 i = 0; i < roleMembers.length; i++) {
-            _roleStatus[_c][role][roleMembers[i]] = status;
+            $.roleStatus[$.c][role][roleMembers[i]] = status;
             if (status) {
-                _roleMembers[_c][role].add(roleMembers[i]);
+                $.roleMembers[$.c][role].add(roleMembers[i]);
             } else {
-                _roleMembers[_c][role].remove(roleMembers[i]);
+                $.roleMembers[$.c][role].remove(roleMembers[i]);
             }
             emit RoleChange(msg.sender, roleMembers[i], status, role);
         }
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                Upgradeability Gap
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    uint256[50] private _gap;
 }

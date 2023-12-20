@@ -13,11 +13,23 @@ import {IRoyaltyEngineV1} from "lib/royalty-registry-solidity/contracts/IRoyalty
 /// @custom:version 3.0.0
 abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelper, SanctionsComplianceUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
-                                  State Variables
+                                    Storage
     //////////////////////////////////////////////////////////////////////////*/
 
-    address public weth;
-    IRoyaltyEngineV1 public royaltyEngine;
+    /// @custom:storage-location erc7201:transientlabs.storage.RoyaltyPayoutHelper
+    struct RoyaltyPayoutHelperStorage {
+        address weth;
+        IRoyaltyEngineV1 royaltyEngine;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.RoyaltyPayoutHelper")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant RoyaltyPayoutHelperStorageLocation = 0x9ab1d1ca9bfa2c669468b724939724262b3f2887db3df18c90168701d6422700;
+
+    function _getRoyaltyPayoutHelperStorage() private pure returns (RoyaltyPayoutHelperStorage storage $) {
+        assembly {
+            $.slot := RoyaltyPayoutHelperStorageLocation
+        }
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Initializer
@@ -42,8 +54,9 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
         internal
         onlyInitializing
     {
-        weth = wethAddress;
-        royaltyEngine = IRoyaltyEngineV1(royaltyEngineAddress);
+        RoyaltyPayoutHelperStorage storage $ = _getRoyaltyPayoutHelperStorage();
+        $.weth = wethAddress;
+        $.royaltyEngine = IRoyaltyEngineV1(royaltyEngineAddress);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -54,14 +67,16 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
     /// @dev Care should be taken to ensure proper access control for this function
     /// @param wethAddress The new WETH token address
     function _setWethAddress(address wethAddress) internal {
-        weth = wethAddress;
+        RoyaltyPayoutHelperStorage storage $ = _getRoyaltyPayoutHelperStorage();
+        $.weth = wethAddress;
     }
 
     /// @notice Function to update the royalty engine address
     /// @dev Care should be taken to ensure proper access control for this function
     /// @param royaltyEngineAddress The new royalty engine address
     function _setRoyaltyEngineAddress(address royaltyEngineAddress) internal {
-        royaltyEngine = IRoyaltyEngineV1(royaltyEngineAddress);
+        RoyaltyPayoutHelperStorage storage $ = _getRoyaltyPayoutHelperStorage();
+        $.royaltyEngine = IRoyaltyEngineV1(royaltyEngineAddress);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -82,9 +97,10 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
         internal
         returns (uint256 remainingSale)
     {
+        RoyaltyPayoutHelperStorage storage $ = _getRoyaltyPayoutHelperStorage();
         remainingSale = salePrice;
-        if (address(royaltyEngine).code.length == 0) return remainingSale;
-        try royaltyEngine.getRoyalty(token, tokenId, salePrice) returns (
+        if (address($.royaltyEngine).code.length == 0) return remainingSale;
+        try $.royaltyEngine.getRoyalty(token, tokenId, salePrice) returns (
             address payable[] memory recipients, uint256[] memory amounts
         ) {
             if (recipients.length != amounts.length) return remainingSale;
@@ -94,7 +110,7 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
                 if (amounts[i] > remainingSale) break;
                 remainingSale -= amounts[i];
                 if (currency == address(0)) {
-                    _safeTransferETH(recipients[i], amounts[i], weth);
+                    _safeTransferETH(recipients[i], amounts[i], $.weth);
                 } else {
                     _safeTransferERC20(recipients[i], currency, amounts[i]);
                 }
@@ -107,9 +123,18 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Upgradeability Gap
+                                Public View Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    uint256[50] private _gap;
+    /// @notice Function to get the current WETH address
+    function weth() public view returns (address) {
+        RoyaltyPayoutHelperStorage storage $ = _getRoyaltyPayoutHelperStorage();
+        return $.weth;
+    }
+
+    /// @notice Function to get the royalty registry
+    function royaltyEngine() public view returns (IRoyaltyEngineV1) {
+        RoyaltyPayoutHelperStorage storage $ = _getRoyaltyPayoutHelperStorage();
+        return $.royaltyEngine;
+    }
 }

@@ -15,7 +15,7 @@ contract SanctionsComplianceUpgradeableTest is Test, SanctionsComplianceUpgradea
     }
 
     function test_init(address sender) public view {
-        assert(address(oracle) == address(0));
+        assert(address(oracle()) == address(0));
         assert(_isSanctioned(sender, false) == false);
     }
 
@@ -24,7 +24,7 @@ contract SanctionsComplianceUpgradeableTest is Test, SanctionsComplianceUpgradea
         emit SanctionsOracleUpdated(address(0), newOracle);
         _updateSanctionsOracle(newOracle);
 
-        assert(address(oracle) == newOracle);
+        assert(address(oracle()) == newOracle);
     }
 
     function isSanctioned(address sender, bool shouldRevert) external view returns (bool) {

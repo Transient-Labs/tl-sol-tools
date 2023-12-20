@@ -14,7 +14,7 @@ import {IEIP2981} from "src/royalties/IEIP2981.sol";
 /// @custom:version 3.0.0
 abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
     /*//////////////////////////////////////////////////////////////////////////
-                                Royalty Struct
+                                    Types
     //////////////////////////////////////////////////////////////////////////*/
 
     struct RoyaltySpec {
@@ -23,13 +23,30 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                State Variables
+                                    Storage
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @custom:storage-location erc7201:transientlabs.storage.EIP2981TLStorage
+    struct EIP2981TLStorage {
+        address defaultRecipient;
+        uint256 defaultPercentage;
+        mapping(uint256 => RoyaltySpec) tokenOverrides;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.EIP2981TLStorage")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant EIP2981TLStorageLocation = 0xe9db8e9b56f2e28e12956850f386d9a4c1e886a4f584b61a10a9d0cacee70700;
+
+    function _getEIP2981TLStorage() private pure returns (EIP2981TLStorage storage $) {
+        assembly {
+            $.slot := EIP2981TLStorageLocation
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                Constants
     //////////////////////////////////////////////////////////////////////////*/
 
     uint256 public constant BASIS = 10_000;
-    address private _defaultRecipient;
-    uint256 private _defaultPercentage;
-    mapping(uint256 => RoyaltySpec) private _tokenOverrides;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     Errors
@@ -70,10 +87,11 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     /// @param newRecipient The new default royalty payout address
     /// @param newPercentage The new default royalty percentage, out of 10,000
     function _setDefaultRoyaltyInfo(address newRecipient, uint256 newPercentage) internal {
+        EIP2981TLStorage storage $ = _getEIP2981TLStorage();
         if (newRecipient == address(0)) revert ZeroAddressError();
         if (newPercentage > 10_000) revert MaxRoyaltyError();
-        _defaultRecipient = newRecipient;
-        _defaultPercentage = newPercentage;
+        $.defaultRecipient = newRecipient;
+        $.defaultPercentage = newPercentage;
     }
 
     /// @notice Function to override royalty spec on a specific token
@@ -81,10 +99,11 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     /// @param newRecipient The new royalty payout address
     /// @param newPercentage The new royalty percentage, out of 10,000
     function _overrideTokenRoyaltyInfo(uint256 tokenId, address newRecipient, uint256 newPercentage) internal {
+        EIP2981TLStorage storage $ = _getEIP2981TLStorage();
         if (newRecipient == address(0)) revert ZeroAddressError();
         if (newPercentage > 10_000) revert MaxRoyaltyError();
-        _tokenOverrides[tokenId].recipient = newRecipient;
-        _tokenOverrides[tokenId].percentage = newPercentage;
+        $.tokenOverrides[tokenId].recipient = newRecipient;
+        $.tokenOverrides[tokenId].percentage = newPercentage;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -97,11 +116,12 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
         view
         returns (address receiver, uint256 royaltyAmount)
     {
-        address recipient = _defaultRecipient;
-        uint256 percentage = _defaultPercentage;
-        if (_tokenOverrides[tokenId].recipient != address(0)) {
-            recipient = _tokenOverrides[tokenId].recipient;
-            percentage = _tokenOverrides[tokenId].percentage;
+        EIP2981TLStorage storage $ = _getEIP2981TLStorage();
+        address recipient = $.defaultRecipient;
+        uint256 percentage = $.defaultPercentage;
+        if ($.tokenOverrides[tokenId].recipient != address(0)) {
+            recipient = $.tokenOverrides[tokenId].recipient;
+            percentage = $.tokenOverrides[tokenId].percentage;
         }
         return (recipient, salePrice * percentage / BASIS);
     }
@@ -122,13 +142,7 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     /// @notice Query the default royalty receiver and percentage.
     /// @return Tuple containing the default royalty recipient and percentage out of 10_000
     function getDefaultRoyaltyRecipientAndPercentage() external view returns (address, uint256) {
-        return (_defaultRecipient, _defaultPercentage);
+        EIP2981TLStorage storage $ = _getEIP2981TLStorage();
+        return ($.defaultRecipient, $.defaultPercentage);
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                Upgradeability Gap
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev Gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    uint256[50] private _gap;
 }
