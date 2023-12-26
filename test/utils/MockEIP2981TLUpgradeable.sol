@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {EIP2981TLUpgradeable} from "src/upgradeable/royalties/EIP2981TLUpgradeable.sol";
 
 /// @dev this contract does not have proper access control but is only for testing
 
-contract MockEIP2981TLUpgradeable is Initializable, EIP2981TLUpgradeable {
+contract MockEIP2981TLUpgradeable is EIP2981TLUpgradeable {
     function initialize(address recipient, uint256 percentage) external initializer {
         __EIP2981TL_init(recipient, percentage);
     }

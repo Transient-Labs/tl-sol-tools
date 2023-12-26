@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
-import {OwnableUpgradeable} from "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import {OwnableUpgradeable} from "openzeppelin-upgradeable/access/OwnableUpgradeable.sol";
+import {EnumerableSet} from "openzeppelin/utils/structs/EnumerableSet.sol";
 
 /// @title OwnableAccessControlUpgradeable.sol
 /// @notice Single owner, flexible access control mechanics
@@ -12,8 +11,7 @@ import {OwnableUpgradeable} from "lib/openzeppelin-contracts-upgradeable/contrac
 ///      may allow other roles to grant roles by using the internal helper.
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
-
+abstract contract OwnableAccessControlUpgradeable is OwnableUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                     Types
     //////////////////////////////////////////////////////////////////////////*/
@@ -32,7 +30,8 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     }
 
     // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.OwnableAccessControl")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant OwnableAccessControlStorageLocation = 0x0d0469b3d32e63681b9fc586a5627ad5e70b3d1ad20f31767e4b6c4141c7e300;
+    bytes32 private constant OwnableAccessControlStorageLocation =
+        0x0d0469b3d32e63681b9fc586a5627ad5e70b3d1ad20f31767e4b6c4141c7e300;
 
     function _getOwnableAccessControlStorage() private pure returns (OwnableAccessControlStorage storage $) {
         assembly {

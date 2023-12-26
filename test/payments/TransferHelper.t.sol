@@ -2,11 +2,11 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
+import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 import {Receiver, RevertingReceiver, GriefingReceiver} from "test/utils/Receivers.sol";
 import {WETH9} from "test/utils/WETH9.sol";
 import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";
 import {TransferHelper} from "src/payments/TransferHelper.sol";
-import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract ExternalTransferHelper is TransferHelper {
     function safeTransferETH(address recipient, uint256 amount, address weth) external {

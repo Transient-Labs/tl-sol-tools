@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {TransferHelper} from "src/payments/TransferHelper.sol";
+import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
 import {SanctionsCompliance} from "src/payments/SanctionsCompliance.sol";
-import {IRoyaltyEngineV1} from "lib/royalty-registry-solidity/contracts/IRoyaltyEngineV1.sol";
+import {TransferHelper} from "src/payments/TransferHelper.sol";
 
 /// @title Royalty Payout Helper
 /// @notice Abstract contract to help payout royalties using the Royalty Registry

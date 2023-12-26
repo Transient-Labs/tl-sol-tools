@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
 import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
 
 /// @title Sanctions Compliance
@@ -20,7 +20,8 @@ contract SanctionsComplianceUpgradeable is Initializable {
     }
 
     // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.SanctionsCompliance")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant SanctionComplianceStorageLocation = 0xd66684c5a7747baca4a45cbf84c01526f3b53186fc4aea64a4c6e2fa4447c700;
+    bytes32 private constant SanctionComplianceStorageLocation =
+        0xd66684c5a7747baca4a45cbf84c01526f3b53186fc4aea64a4c6e2fa4447c700;
 
     function _getSanctionsComplianceStorage() private pure returns (SanctionComplianceStorage storage $) {
         assembly {
@@ -91,7 +92,7 @@ contract SanctionsComplianceUpgradeable is Initializable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Function to get chainalysis oracle
-    function oracle() public view returns(IChainalysisSanctionsOracle) {
+    function oracle() public view returns (IChainalysisSanctionsOracle) {
         SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
         return $.oracle;
     }

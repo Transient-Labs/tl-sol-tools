@@ -31,7 +31,7 @@ compiler_test:
 	forge test --use 0.8.22
 
 quick_test:
-	forge test --fuzz-runs 512
+	forge test
 
 gas_test:
 	forge test --gas-report

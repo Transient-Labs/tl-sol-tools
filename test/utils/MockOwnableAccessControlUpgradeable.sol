@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {OwnableAccessControlUpgradeable} from "src/upgradeable/access/OwnableAccessControlUpgradeable.sol";
 
-contract MockOwnableAccessControlUpgradeable is Initializable, OwnableAccessControlUpgradeable {
+contract MockOwnableAccessControlUpgradeable is OwnableAccessControlUpgradeable {
     uint256 public number;
     bytes32 public ADMIN_ROLE = keccak256("ADMIN");
     bytes32 public MINTER_ROLE = keccak256("MINTER");

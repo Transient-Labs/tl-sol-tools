@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
 import {TransferHelper} from "src/payments/TransferHelper.sol";
 import {SanctionsComplianceUpgradeable} from "src/upgradeable/payments/SanctionsComplianceUpgradeable.sol";
-import {IRoyaltyEngineV1} from "lib/royalty-registry-solidity/contracts/IRoyaltyEngineV1.sol";
 
 /// @title Royalty Payout Helper
 /// @notice Abstract contract to help payout royalties using the Royalty Registry
 /// @dev Does not manage updating the sanctions oracle and expects the child contract to implement
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelper, SanctionsComplianceUpgradeable {
+abstract contract RoyaltyPayoutHelperUpgradeable is SanctionsComplianceUpgradeable, TransferHelper {
     /*//////////////////////////////////////////////////////////////////////////
                                     Storage
     //////////////////////////////////////////////////////////////////////////*/
@@ -23,7 +22,8 @@ abstract contract RoyaltyPayoutHelperUpgradeable is Initializable, TransferHelpe
     }
 
     // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.RoyaltyPayoutHelper")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant RoyaltyPayoutHelperStorageLocation = 0x9ab1d1ca9bfa2c669468b724939724262b3f2887db3df18c90168701d6422700;
+    bytes32 private constant RoyaltyPayoutHelperStorageLocation =
+        0x9ab1d1ca9bfa2c669468b724939724262b3f2887db3df18c90168701d6422700;
 
     function _getRoyaltyPayoutHelperStorage() private pure returns (RoyaltyPayoutHelperStorage storage $) {
         assembly {

@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {ERC165Upgradeable} from
-    "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol";
+import {ERC165Upgradeable} from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
 import {IEIP2981} from "src/royalties/IEIP2981.sol";
 
 /// @title EIP2981TLUpgradeable.sol
@@ -12,7 +10,7 @@ import {IEIP2981} from "src/royalties/IEIP2981.sol";
 /// @dev Follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
 /// @custom:version 3.0.0
-abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgradeable {
+abstract contract EIP2981TLUpgradeable is IEIP2981, ERC165Upgradeable {
     /*//////////////////////////////////////////////////////////////////////////
                                     Types
     //////////////////////////////////////////////////////////////////////////*/
@@ -34,7 +32,8 @@ abstract contract EIP2981TLUpgradeable is IEIP2981, Initializable, ERC165Upgrade
     }
 
     // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.EIP2981TLStorage")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant EIP2981TLStorageLocation = 0xe9db8e9b56f2e28e12956850f386d9a4c1e886a4f584b61a10a9d0cacee70700;
+    bytes32 private constant EIP2981TLStorageLocation =
+        0xe9db8e9b56f2e28e12956850f386d9a4c1e886a4f584b61a10a9d0cacee70700;
 
     function _getEIP2981TLStorage() private pure returns (EIP2981TLStorage storage $) {
         assembly {

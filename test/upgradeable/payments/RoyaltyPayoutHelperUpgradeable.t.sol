@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
+import {Strings} from "openzeppelin/utils/Strings.sol";
 import {Receiver, RevertingReceiver} from "test/utils/Receivers.sol";
 import {WETH9} from "test/utils/WETH9.sol";
 import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";
@@ -10,10 +11,8 @@ import {
     IRoyaltyEngineV1
 } from "src/upgradeable/payments/RoyaltyPayoutHelperUpgradeable.sol";
 import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
-import {Initializable} from "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
-contract ExternalRoyaltyPayoutHelper is Initializable, RoyaltyPayoutHelperUpgradeable {
+contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelperUpgradeable {
     function initialize(address sanctionsOracle, address wethAddress, address royaltyEngineAddress)
         external
         initializer

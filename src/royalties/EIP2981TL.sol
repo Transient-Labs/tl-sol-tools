@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ERC165} from "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol";
+import {ERC165} from "openzeppelin/utils/introspection/ERC165.sol";
 import {IEIP2981} from "src/royalties/IEIP2981.sol";
 
 /// @title EIP2981TL.sol
@@ -12,7 +12,7 @@ import {IEIP2981} from "src/royalties/IEIP2981.sol";
 /// @custom:version 3.0.0
 abstract contract EIP2981TL is IEIP2981, ERC165 {
     /*//////////////////////////////////////////////////////////////////////////
-                                Royalty Struct
+                                    Types
     //////////////////////////////////////////////////////////////////////////*/
 
     struct RoyaltySpec {
