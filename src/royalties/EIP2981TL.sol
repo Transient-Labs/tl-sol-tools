@@ -1,33 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import {ERC165} from "openzeppelin/utils/introspection/ERC165.sol";
-import {IEIP2981} from "./IEIP2981.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Custom Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @dev error if the recipient is set to address(0)
-error ZeroAddressError();
-
-/// @dev error if the royalty percentage is greater than to 100%
-error MaxRoyaltyError();
-
-/*//////////////////////////////////////////////////////////////////////////
-                            EIP2981TL
-//////////////////////////////////////////////////////////////////////////*/
+import {IEIP2981} from "src/royalties/IEIP2981.sol";
 
 /// @title EIP2981TL.sol
-/// @notice abstract contract to define a default royalty spec
+/// @notice Abstract contract to define a default royalty spec
 ///         while allowing for specific token overrides
-/// @dev follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
+/// @dev Follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
-/// https://github.com/Transient-Labs/tl-sol-tools
-/// @custom:last-updated 2.2.2
+/// @custom:version 3.0.0
 abstract contract EIP2981TL is IEIP2981, ERC165 {
     /*//////////////////////////////////////////////////////////////////////////
-                                Royalty Struct
+                                    Types
     //////////////////////////////////////////////////////////////////////////*/
 
     struct RoyaltySpec {
@@ -39,16 +24,27 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
                                 State Variables
     //////////////////////////////////////////////////////////////////////////*/
 
+    uint256 public constant BASIS = 10_000;
     address private _defaultRecipient;
     uint256 private _defaultPercentage;
     mapping(uint256 => RoyaltySpec) private _tokenOverrides;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev error if the recipient is set to address(0)
+    error ZeroAddressError();
+
+    /// @dev error if the royalty percentage is greater than to 100%
+    error MaxRoyaltyError();
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 Constructor
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param defaultRecipient - the default royalty payout address
-    /// @param defaultPercentage - the deafult royalty percentage, out of 10,000
+    /// @param defaultRecipient The default royalty payout address
+    /// @param defaultPercentage The deafult royalty percentage, out of 10,000
     constructor(address defaultRecipient, uint256 defaultPercentage) {
         _setDefaultRoyaltyInfo(defaultRecipient, defaultPercentage);
     }
@@ -57,9 +53,9 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
                                 Royalty Changing Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice function to set default royalty info
-    /// @param newRecipient - the new default royalty payout address
-    /// @param newPercentage - the new default royalty percentage, out of 10,000
+    /// @notice Function to set default royalty info
+    /// @param newRecipient The new default royalty payout address
+    /// @param newPercentage The new default royalty percentage, out of 10,000
     function _setDefaultRoyaltyInfo(address newRecipient, uint256 newPercentage) internal {
         if (newRecipient == address(0)) revert ZeroAddressError();
         if (newPercentage > 10_000) revert MaxRoyaltyError();
@@ -67,10 +63,10 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
         _defaultPercentage = newPercentage;
     }
 
-    /// @notice function to override royalty spec on a specific token
-    /// @param tokenId - the token id to override royalty for
-    /// @param newRecipient - the new royalty payout address
-    /// @param newPercentage - the new royalty percentage, out of 10,000
+    /// @notice Function to override royalty spec on a specific token
+    /// @param tokenId The token id to override royalty for
+    /// @param newRecipient The new royalty payout address
+    /// @param newPercentage The new royalty percentage, out of 10,000
     function _overrideTokenRoyaltyInfo(uint256 tokenId, address newRecipient, uint256 newPercentage) internal {
         if (newRecipient == address(0)) revert ZeroAddressError();
         if (newPercentage > 10_000) revert MaxRoyaltyError();
@@ -94,7 +90,7 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
             recipient = _tokenOverrides[tokenId].recipient;
             percentage = _tokenOverrides[tokenId].percentage;
         }
-        return (recipient, salePrice / 10_000 * percentage); // divide first to avoid overflow
+        return (recipient, salePrice * percentage / BASIS);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

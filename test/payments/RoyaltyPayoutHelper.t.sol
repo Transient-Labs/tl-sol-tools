@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {Receiver, RevertingReceiver} from "../utils/Receivers.sol";
-import {WETH9} from "../utils/WETH9.sol";
-import {MockERC20, MockERC20WithFee} from "../utils/MockERC20.sol";
-import {RoyaltyPayoutHelper, IRoyaltyEngineV1} from "tl-sol-tools/payments/RoyaltyPayoutHelper.sol";
-import {ChainalysisSanctionsOracle} from "tl-sol-tools/payments/SanctionsCompliance.sol";
 import {Strings} from "openzeppelin/utils/Strings.sol";
+import {Receiver, RevertingReceiver} from "test/utils/Receivers.sol";
+import {WETH9} from "test/utils/WETH9.sol";
+import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";
+import {RoyaltyPayoutHelper, IRoyaltyEngineV1} from "src/payments/RoyaltyPayoutHelper.sol";
+import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
 
 contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
-
-    constructor(address sanctionsAddress, address wethAddress, address royaltyEngineAddress) RoyaltyPayoutHelper(sanctionsAddress, wethAddress, royaltyEngineAddress) {}
+    constructor(address sanctionsAddress, address wethAddress, address royaltyEngineAddress)
+        RoyaltyPayoutHelper(sanctionsAddress, wethAddress, royaltyEngineAddress)
+    {}
 
     function setWethAddress(address wethAddress) external {
         _setWethAddress(wethAddress);
@@ -21,7 +22,10 @@ contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
         _setRoyaltyEngineAddress(royaltyEngineAddress);
     }
 
-    function payoutRoyalties(address token, uint256 tokenId, address currency, uint256 salePrice) external returns(uint256) {
+    function payoutRoyalties(address token, uint256 tokenId, address currency, uint256 salePrice)
+        external
+        returns (uint256)
+    {
         return _payoutRoyalties(token, tokenId, currency, salePrice);
     }
 
@@ -31,7 +35,6 @@ contract ExternalRoyaltyPayoutHelper is RoyaltyPayoutHelper {
 }
 
 contract TestRoyaltyPayoutHelper is Test {
-
     using Strings for uint256;
 
     ExternalRoyaltyPayoutHelper rph;
@@ -57,32 +60,28 @@ contract TestRoyaltyPayoutHelper is Test {
         rph = new ExternalRoyaltyPayoutHelper(address(0), weth, royaltyEngine);
     }
 
-    function testInit() public view {
+    function test_Init() public view {
         assert(rph.weth() == weth);
         assert(address(rph.royaltyEngine()) == royaltyEngine);
     }
 
-    function testUpdateWethAddress(address newWeth) public {
+    function test_UpdateWethAddress(address newWeth) public {
         rph.setWethAddress(newWeth);
         assert(rph.weth() == newWeth);
     }
 
-    function testUpdateRoyaltyEngine(address newRoyaltyEngine) public {
+    function test_UpdateRoyaltyEngine(address newRoyaltyEngine) public {
         rph.setRoyaltyEngineAddress(newRoyaltyEngine);
         assert(address(rph.royaltyEngine()) == newRoyaltyEngine);
     }
 
-    function testPayoutRoyaltiesEOA(uint256 salePrice) public {
+    function test_PayoutRoyaltiesEOA(uint256 salePrice) public {
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
         assert(remainingSale == salePrice);
     }
 
-    function testPayoutRoyaltiesRevertingQuery(uint256 salePrice) public {
-        vm.mockCallRevert(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            "fail fail"
-        );
+    function test_PayoutRoyaltiesRevertingQuery(uint256 salePrice) public {
+        vm.mockCallRevert(royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), "fail fail");
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
         assert(remainingSale == salePrice);
@@ -90,15 +89,12 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesUnequalLengthArrays(uint256 salePrice) public {
-
+    function test_PayoutRoyaltiesUnequalLengthArrays(uint256 salePrice) public {
         address[] memory recipients = new address[](1);
         recipients[0] = address(1);
         uint256[] memory amounts = new uint256[](0);
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
@@ -107,14 +103,11 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesZeroLengthArrays(uint256 salePrice) public {
-
+    function test_PayoutRoyaltiesZeroLengthArrays(uint256 salePrice) public {
         address[] memory recipients = new address[](0);
         uint256[] memory amounts = new uint256[](0);
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), salePrice);
@@ -123,7 +116,7 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesMoreThanSalePrice() public {
+    function test_PayoutRoyaltiesMoreThanSalePrice() public {
         uint256 price = 1 ether;
         address[] memory recipients = new address[](2);
         recipients[0] = address(100);
@@ -135,9 +128,7 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.deal(address(rph), price);
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(0), price);
@@ -147,7 +138,7 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesETH(uint8 numRecipients, uint256 salePrice, bool sanctionsCompliance) public {
+    function test_PayoutRoyaltiesETH(uint8 numRecipients, uint256 salePrice, bool sanctionsCompliance) public {
         vm.assume(salePrice > 4);
         vm.assume(numRecipients > 0);
         vm.assume(salePrice >= numRecipients);
@@ -162,18 +153,14 @@ contract TestRoyaltyPayoutHelper is Test {
         }
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         if (sanctionsCompliance) {
             address newOracle = makeAddr("Sanctions compliance is soooooo fun");
             rph.updateSanctionsOracle(newOracle);
             vm.mockCall(
-                newOracle,
-                abi.encodeWithSelector(ChainalysisSanctionsOracle.isSanctioned.selector),
-                abi.encode(true)
+                newOracle, abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(true)
             );
         }
 
@@ -196,7 +183,7 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesERC20(uint8 numRecipients, uint256 salePrice, bool sanctionsCompliance) public {
+    function test_PayoutRoyaltiesERC20(uint8 numRecipients, uint256 salePrice, bool sanctionsCompliance) public {
         vm.assume(salePrice > 4);
         vm.assume(numRecipients > 0);
         vm.assume(salePrice >= numRecipients);
@@ -211,18 +198,14 @@ contract TestRoyaltyPayoutHelper is Test {
         }
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         if (sanctionsCompliance) {
             address newOracle = makeAddr("Sanctions compliance is soooooo fun");
             rph.updateSanctionsOracle(newOracle);
             vm.mockCall(
-                newOracle,
-                abi.encodeWithSelector(ChainalysisSanctionsOracle.isSanctioned.selector),
-                abi.encode(true)
+                newOracle, abi.encodeWithSelector(IChainalysisSanctionsOracle.isSanctioned.selector), abi.encode(true)
             );
         }
 
@@ -246,7 +229,7 @@ contract TestRoyaltyPayoutHelper is Test {
         vm.clearMockedCalls();
     }
 
-    function testPayoutRoyaltiesERC20WithFee(uint8 numRecipients, uint128 salePrice) public {
+    function test_PayoutRoyaltiesERC20WithFee(uint8 numRecipients, uint128 salePrice) public {
         vm.assume(salePrice > 4);
         vm.assume(numRecipients > 0);
         vm.assume(salePrice >= numRecipients);
@@ -261,21 +244,18 @@ contract TestRoyaltyPayoutHelper is Test {
         }
 
         vm.mockCall(
-            royaltyEngine,
-            abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector),
-            abi.encode(recipients, amounts)
+            royaltyEngine, abi.encodeWithSelector(IRoyaltyEngineV1.getRoyalty.selector), abi.encode(recipients, amounts)
         );
 
         vm.prank(ben);
-        erc20fee.transfer(address(rph), uint256(salePrice)+1);
+        erc20fee.transfer(address(rph), uint256(salePrice) + 1);
 
         uint256 remainingSale = rph.payoutRoyalties(address(1), 1, address(erc20fee), uint256(salePrice));
         assert(remainingAmount == remainingSale);
         for (uint256 i = 0; i < numRecipients; i++) {
-            assert(erc20fee.balanceOf(recipients[i]) == price-1);
+            assert(erc20fee.balanceOf(recipients[i]) == price - 1);
         }
 
         vm.clearMockedCalls();
     }
-
 }

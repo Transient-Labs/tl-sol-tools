@@ -2,42 +2,45 @@
 pragma solidity ^0.8.17;
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Chainalysis Sanctions Oracle
-//////////////////////////////////////////////////////////////////////////*/
-
-interface ChainalysisSanctionsOracle {
-    function isSanctioned(address addr) external view returns (bool);
-}
-
-/*//////////////////////////////////////////////////////////////////////////
-                              Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-error SanctionedAddress();
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Sanctions Compliance
-//////////////////////////////////////////////////////////////////////////*/
+import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
 
 /// @title Sanctions Compliance
 /// @notice Abstract contract to comply with U.S. sanctioned addresses
 /// @dev Uses the Chainalysis Sanctions Oracle for checking sanctions
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.5.0
+/// @custom:version 3.0.0
 contract SanctionsComplianceUpgradeable is Initializable {
     /*//////////////////////////////////////////////////////////////////////////
-                                State Variables
+                                    Storage
     //////////////////////////////////////////////////////////////////////////*/
 
-    ChainalysisSanctionsOracle public oracle;
+    /// @custom:storage-location erc7201:transientlabs.storage.SanctionsCompliance
+    struct SanctionComplianceStorage {
+        IChainalysisSanctionsOracle oracle;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.SanctionsCompliance")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant SanctionComplianceStorageLocation =
+        0xd66684c5a7747baca4a45cbf84c01526f3b53186fc4aea64a4c6e2fa4447c700;
+
+    function _getSanctionsComplianceStorage() private pure returns (SanctionComplianceStorage storage $) {
+        assembly {
+            $.slot := SanctionComplianceStorageLocation
+        }
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Events
     //////////////////////////////////////////////////////////////////////////*/
 
     event SanctionsOracleUpdated(address indexed prevOracle, address indexed newOracle);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Sanctioned address by OFAC
+    error SanctionedAddress();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Initializer
@@ -51,10 +54,7 @@ contract SanctionsComplianceUpgradeable is Initializable {
 
     /// @notice unchained function to initialize the contract
     /// @param initOracle The initial oracle address
-    function __SanctionsCompliance_init_unchained(address initOracle)
-        internal
-        onlyInitializing
-    {
+    function __SanctionsCompliance_init_unchained(address initOracle) internal onlyInitializing {
         _updateSanctionsOracle(initOracle);
     }
 
@@ -65,8 +65,9 @@ contract SanctionsComplianceUpgradeable is Initializable {
     /// @notice Internal function to change the sanctions oracle
     /// @param newOracle The new sanctions oracle address
     function _updateSanctionsOracle(address newOracle) internal {
-        address prevOracle = address(oracle);
-        oracle = ChainalysisSanctionsOracle(newOracle);
+        SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
+        address prevOracle = address($.oracle);
+        $.oracle = IChainalysisSanctionsOracle(newOracle);
 
         emit SanctionsOracleUpdated(prevOracle, newOracle);
     }
@@ -77,11 +78,22 @@ contract SanctionsComplianceUpgradeable is Initializable {
     /// @param shouldRevertIfSanctioned A flag indicating if the call should revert if the sender is sanctioned. Set to false if wanting to get a result.
     /// @return isSanctioned Boolean indicating if the sender is sanctioned
     function _isSanctioned(address sender, bool shouldRevertIfSanctioned) internal view returns (bool isSanctioned) {
-        if (address(oracle) == address(0)) {
+        SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
+        if (address($.oracle) == address(0)) {
             return false;
         }
-        isSanctioned = oracle.isSanctioned(sender);
+        isSanctioned = $.oracle.isSanctioned(sender);
         if (shouldRevertIfSanctioned && isSanctioned) revert SanctionedAddress();
         return isSanctioned;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            Public View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Function to get chainalysis oracle
+    function oracle() public view returns (IChainalysisSanctionsOracle) {
+        SanctionComplianceStorage storage $ = _getSanctionsComplianceStorage();
+        return $.oracle;
     }
 }

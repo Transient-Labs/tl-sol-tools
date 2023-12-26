@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {EIP2981TLUpgradeable} from "src/upgradeable/royalties/EIP2981TLUpgradeable.sol";
 
 /// @dev this contract does not have proper access control but is only for testing
 
-pragma solidity ^0.8.17;
-
-import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import {EIP2981TLUpgradeable} from "tl-sol-tools/upgradeable/royalties/EIP2981TLUpgradeable.sol";
-
-contract MockEIP2981TLUpgradeable is Initializable, EIP2981TLUpgradeable {
+contract MockEIP2981TLUpgradeable is EIP2981TLUpgradeable {
     function initialize(address recipient, uint256 percentage) external initializer {
         __EIP2981TL_init(recipient, percentage);
     }

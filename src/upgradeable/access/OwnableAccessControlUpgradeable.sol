@@ -1,57 +1,69 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
-import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import {EnumerableSetUpgradeable} from "openzeppelin-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 import {OwnableUpgradeable} from "openzeppelin-upgradeable/access/OwnableUpgradeable.sol";
+import {EnumerableSet} from "openzeppelin/utils/structs/EnumerableSet.sol";
 
-/*//////////////////////////////////////////////////////////////////////////
-                            Custom Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @dev does not have specified role
-error NotSpecifiedRole(bytes32 role);
-
-/// @dev is not specified role or owner
-error NotRoleOrOwner(bytes32 role);
-
-/*//////////////////////////////////////////////////////////////////////////
-                        OwnableAccessControlUpgradeable
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @title OwnableAccessControl.sol
-/// @notice single owner, flexible access control mechanics
-/// @dev can easily be extended by inheriting and applying additional roles
-/// @dev by default, only the owner can grant roles but by inheriting, but you
+/// @title OwnableAccessControlUpgradeable.sol
+/// @notice Single owner, flexible access control mechanics
+/// @dev Can easily be extended by inheriting and applying additional roles
+/// @dev By default, only the owner can grant roles but by inheriting, but you
 ///      may allow other roles to grant roles by using the internal helper.
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.2.2
-abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgradeable {
+/// @custom:version 3.0.0
+abstract contract OwnableAccessControlUpgradeable is OwnableUpgradeable {
     /*//////////////////////////////////////////////////////////////////////////
-                                State Variables
+                                    Types
     //////////////////////////////////////////////////////////////////////////*/
 
-    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
-
-    uint256 private _c; // counter to be able to revoke all priviledges
-    mapping(uint256 => mapping(bytes32 => mapping(address => bool))) private _roleStatus;
-    mapping(uint256 => mapping(bytes32 => EnumerableSetUpgradeable.AddressSet)) private _roleMembers;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Events
+                                    Storage
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param from - address that authorized the role change
-    /// @param user - the address who's role has been changed
-    /// @param approved - boolean indicating the user's status in role
-    /// @param role - the bytes32 role created in the inheriting contract
+    /// @custom:storage-location erc7201:transientlabs.storage.OwnableAccessControl
+    struct OwnableAccessControlStorage {
+        uint256 c; // counter to be able to revoke all priviledges
+        mapping(uint256 => mapping(bytes32 => mapping(address => bool))) roleStatus;
+        mapping(uint256 => mapping(bytes32 => EnumerableSet.AddressSet)) roleMembers;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("transientlabs.storage.OwnableAccessControl")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant OwnableAccessControlStorageLocation =
+        0x0d0469b3d32e63681b9fc586a5627ad5e70b3d1ad20f31767e4b6c4141c7e300;
+
+    function _getOwnableAccessControlStorage() private pure returns (OwnableAccessControlStorage storage $) {
+        assembly {
+            $.slot := OwnableAccessControlStorageLocation
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Events
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @param from Address that authorized the role change
+    /// @param user The address who's role has been changed
+    /// @param approved Boolean indicating the user's status in role
+    /// @param role The bytes32 role created in the inheriting contract
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
 
-    /// @param from - address that authorized the revoke
+    /// @param from Address that authorized the revoke
     event AllRolesRevoked(address indexed from);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Modifiers
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Does not have specified role
+    error NotSpecifiedRole(bytes32 role);
+
+    /// @dev Is not specified role or owner
+    error NotRoleOrOwner(bytes32 role);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Modifiers
     //////////////////////////////////////////////////////////////////////////*/
 
     modifier onlyRole(bytes32 role) {
@@ -69,13 +81,12 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Initializer
+                                    Initializer
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initOwner - the address of the initial owner
+    /// @param initOwner The address of the initial owner
     function __OwnableAccessControl_init(address initOwner) internal onlyInitializing {
-        __Ownable_init();
-        _transferOwnership(initOwner);
+        __Ownable_init(initOwner);
         __OwnableAccessControl_init_unchained();
     }
 
@@ -85,28 +96,29 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
                                 External Role Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice function to revoke all roles currently present
-    /// @dev increments the `_c` variables
-    /// @dev requires owner privileges
+    /// @notice Function to revoke all roles currently present
+    /// @dev Increments the `_c` variables
+    /// @dev Requires owner privileges
     function revokeAllRoles() external onlyOwner {
-        _c++;
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
+        $.c++;
         emit AllRolesRevoked(msg.sender);
     }
 
-    /// @notice function to renounce role
-    /// @param role - bytes32 role created in inheriting contracts
+    /// @notice Function to renounce role
+    /// @param role Bytes32 role created in inheriting contracts
     function renounceRole(bytes32 role) external {
         address[] memory members = new address[](1);
         members[0] = msg.sender;
         _setRole(role, members, false);
     }
 
-    /// @notice function to grant/revoke a role to an address
-    /// @dev requires owner to call this function but this may be further
+    /// @notice Function to grant/revoke a role to an address
+    /// @dev Requires owner to call this function but this may be further
     ///      extended using the internal helper function in inheriting contracts
-    /// @param role - bytes32 role created in inheriting contracts
-    /// @param roleMembers - list of addresses that should have roles attached to them based on `status`
-    /// @param status - bool whether to remove or add `roleMembers` to the `role`
+    /// @param role Bytes32 role created in inheriting contracts
+    /// @param roleMembers List of addresses that should have roles attached to them based on `status`
+    /// @param status Bool whether to remove or add `roleMembers` to the `role`
     function setRole(bytes32 role, address[] memory roleMembers, bool status) external onlyOwner {
         _setRole(role, roleMembers, status);
     }
@@ -115,43 +127,39 @@ abstract contract OwnableAccessControlUpgradeable is Initializable, OwnableUpgra
                                 External View Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice function to see if an address is the owner
-    /// @param role - bytes32 role created in inheriting contracts
-    /// @param potentialRoleMember - address to check for role membership
+    /// @notice Function to see if an address is the owner
+    /// @param role Bytes32 role created in inheriting contracts
+    /// @param potentialRoleMember Address to check for role membership
     function hasRole(bytes32 role, address potentialRoleMember) public view returns (bool) {
-        return _roleStatus[_c][role][potentialRoleMember];
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
+        return $.roleStatus[$.c][role][potentialRoleMember];
     }
 
-    /// @notice function to get role members
-    /// @param role - bytes32 role created in inheriting contracts
+    /// @notice Function to get role members
+    /// @param role Bytes32 role created in inheriting contracts
     function getRoleMembers(bytes32 role) public view returns (address[] memory) {
-        return _roleMembers[_c][role].values();
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
+        return $.roleMembers[$.c][role].values();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Internal Helper Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice helper function to set addresses for a role
-    /// @param role - bytes32 role created in inheriting contracts
-    /// @param roleMembers - list of addresses that should have roles attached to them based on `status`
-    /// @param status - bool whether to remove or add `roleMembers` to the `role`
+    /// @notice Helper function to set addresses for a role
+    /// @param role Bytes32 role created in inheriting contracts
+    /// @param roleMembers List of addresses that should have roles attached to them based on `status`
+    /// @param status Bool whether to remove or add `roleMembers` to the `role`
     function _setRole(bytes32 role, address[] memory roleMembers, bool status) internal {
+        OwnableAccessControlStorage storage $ = _getOwnableAccessControlStorage();
         for (uint256 i = 0; i < roleMembers.length; i++) {
-            _roleStatus[_c][role][roleMembers[i]] = status;
+            $.roleStatus[$.c][role][roleMembers[i]] = status;
             if (status) {
-                _roleMembers[_c][role].add(roleMembers[i]);
+                $.roleMembers[$.c][role].add(roleMembers[i]);
             } else {
-                _roleMembers[_c][role].remove(roleMembers[i]);
+                $.roleMembers[$.c][role].remove(roleMembers[i]);
             }
             emit RoleChange(msg.sender, roleMembers[i], status, role);
         }
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                Upgradeability Gap
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @dev gap variable - see https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-    uint256[50] private _gap;
 }

@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import {MockOwnableAccessControlUpgradeable} from "../../utils/MockOwnableAccessControlUpgradeable.sol";
+import {MockOwnableAccessControlUpgradeable} from "test/utils/MockOwnableAccessControlUpgradeable.sol";
 import {
     OwnableAccessControlUpgradeable,
-    NotRoleOrOwner,
-    NotSpecifiedRole
-} from "tl-sol-tools/upgradeable/access/OwnableAccessControlUpgradeable.sol";
+    OwnableUpgradeable
+} from "src/upgradeable/access/OwnableAccessControlUpgradeable.sol";
 
-contract TestOwnableAccessControl is Test {
+contract OwnableAccessControlTest is Test {
     MockOwnableAccessControlUpgradeable public mockContract;
 
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
     event AllRolesRevoked(address indexed from);
 
-    function testInitialization(address owner) public {
+    function test_Initialization(address owner) public {
+        vm.assume(owner != address(0));
+
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         mockContract = new MockOwnableAccessControlUpgradeable();
@@ -24,7 +24,7 @@ contract TestOwnableAccessControl is Test {
         assertEq(mockContract.owner(), owner);
     }
 
-    function testInitialValues() public {
+    function test_InitialValues() public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // expect default owner and number
@@ -32,7 +32,7 @@ contract TestOwnableAccessControl is Test {
         assertEq(mockContract.number(), 0);
     }
 
-    function testOwnerRole() public {
+    function test_OwnerRole() public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // expect owner can change the number
@@ -72,14 +72,20 @@ contract TestOwnableAccessControl is Test {
         mockContract.revokeAllRoles();
 
         // expect reverts on other access controlled functions
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(3);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()
+            )
+        );
         mockContract.onlyMinterFunction(3);
     }
 
-    function testAdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
+    function test_AdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         address[] memory admins = new address[](1);
@@ -105,18 +111,22 @@ contract TestOwnableAccessControl is Test {
 
         // expect reverts on other role locked functions
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.onlyOwnerFunction(newNumberOne);
         }
 
         if (admin != minter) {
-            vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()
+                )
+            );
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
         // expect can't revoke all roles
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.revokeAllRoles();
         }
 
@@ -129,28 +139,38 @@ contract TestOwnableAccessControl is Test {
 
         // check reverts happen for all functions
         vm.startPrank(admin, admin);
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(newNumberOne);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminOrOwnerFunction(newNumberTwo);
 
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.onlyOwnerFunction(newNumberOne);
         }
 
         if (admin != minter) {
-            vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+            vm.expectRevert(
+                abi.encodeWithSelector(
+                    OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()
+                )
+            );
             mockContract.onlyMinterFunction(newNumberOne);
         }
 
         // expect can't revoke all roles
         if (admin != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, admin));
             mockContract.revokeAllRoles();
         }
 
@@ -166,7 +186,7 @@ contract TestOwnableAccessControl is Test {
         vm.stopPrank();
     }
 
-    function testMinterRole(address minter, uint256 newNumber) public {
+    function test_MinterRole(address minter, uint256 newNumber) public {
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // grant minter role and expect proper event log
@@ -184,23 +204,29 @@ contract TestOwnableAccessControl is Test {
         assertEq(mockContract.number(), newNumber);
 
         // expect reverts on all other functions
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(newNumber);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminOrOwnerFunction(newNumber);
 
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.onlyOwnerFunction(newNumber);
         }
 
         // expect can't revoke all roles
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.revokeAllRoles();
         }
 
@@ -215,26 +241,36 @@ contract TestOwnableAccessControl is Test {
         // expect reverts on all functions
         vm.startPrank(minter, minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.MINTER_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.MINTER_ROLE()
+            )
+        );
         mockContract.onlyMinterFunction(newNumber);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.setMinterRole(minter);
 
-        vm.expectRevert(abi.encodeWithSelector(NotSpecifiedRole.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotSpecifiedRole.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminFunction(newNumber);
 
-        vm.expectRevert(abi.encodeWithSelector(NotRoleOrOwner.selector, mockContract.ADMIN_ROLE()));
+        vm.expectRevert(
+            abi.encodeWithSelector(OwnableAccessControlUpgradeable.NotRoleOrOwner.selector, mockContract.ADMIN_ROLE())
+        );
         mockContract.onlyAdminOrOwnerFunction(newNumber);
 
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.onlyOwnerFunction(newNumber);
         }
 
         // expect can't revoke all roles
         if (minter != address(this)) {
-            vm.expectRevert(bytes("Ownable: caller is not the owner"));
+            vm.expectRevert(abi.encodeWithSelector(OwnableUpgradeable.OwnableUnauthorizedAccount.selector, minter));
             mockContract.revokeAllRoles();
         }
 

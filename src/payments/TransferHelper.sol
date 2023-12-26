@@ -1,34 +1,30 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 import {SafeERC20} from "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {IWETH, IERC20} from "./IWETH.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Custom Errors
-//////////////////////////////////////////////////////////////////////////*/
-
-/// @dev ETH transfer failed
-error ETHTransferFailed();
-
-/// @dev Transferred too few ERC-20 tokens
-error InsufficentERC20Transfer();
-
-/*//////////////////////////////////////////////////////////////////////////
-                            Transfer Helper
-//////////////////////////////////////////////////////////////////////////*/
+import {IWETH, IERC20} from "src/payments/IWETH.sol";
 
 /// @title Transfer Helper
 /// @notice Abstract contract that has helper function for sending ETH and ERC20's safely
 /// @author transientlabs.xyz
-/// @custom:last-updated 2.6.0
+/// @custom:version 3.0.0
 abstract contract TransferHelper {
     /*//////////////////////////////////////////////////////////////////////////
-                                  State Variables
+                                    Types
     //////////////////////////////////////////////////////////////////////////*/
 
     using SafeERC20 for IERC20;
     using SafeERC20 for IWETH;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Errors
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev ETH transfer failed
+    error ETHTransferFailed();
+
+    /// @dev Transferred too few ERC-20 tokens
+    error InsufficentERC20Transfer();
 
     /*//////////////////////////////////////////////////////////////////////////
                                    ETH Functions

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.20;
 
 contract Receiver {
     event EthReceived(uint256 indexed amount);
@@ -17,6 +17,7 @@ contract RevertingReceiver {
 
 contract GriefingReceiver {
     event Grief();
+
     receive() external payable {
         for (uint256 i = 0; i < type(uint256).max; i++) {
             emit Grief();

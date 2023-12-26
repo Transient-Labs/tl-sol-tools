@@ -6,16 +6,15 @@ You should have no trouble inheriting from this library if you install with foun
 
 When cloning, you must use either `make remove && make install` or `make update` to install/update the required modules, such as `forge-std` or OpenZeppelin contracts.
 
-We use OpenZeppelin contracts version 4.8.3 in this codebase.
+We use OpenZeppelin contracts version 5.0.1 in this codebase.
 
 ## Testing
-You should run the test suite with `make test_suite`. 
+You should run the test suites in the Makefile. 
 
 This loops through the following solidity versions:
-- 0.8.17
-- 0.8.18
-- 0.8.19
 - 0.8.20
+- 0.8.21
+- 0.8.22
 
 ## Disclaimer
 This codebase is provided on an "as is" and "as available" basis.
