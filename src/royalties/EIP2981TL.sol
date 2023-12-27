@@ -9,7 +9,7 @@ import {IEIP2981} from "src/royalties/IEIP2981.sol";
 ///         while allowing for specific token overrides
 /// @dev Follows EIP-2981 (https://eips.ethereum.org/EIPS/eip-2981)
 /// @author transientlabs.xyz
-/// @custom:version 3.0.0
+/// @custom:version 3.1.0
 abstract contract EIP2981TL is IEIP2981, ERC165 {
     /*//////////////////////////////////////////////////////////////////////////
                                     Types
@@ -28,6 +28,16 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
     address private _defaultRecipient;
     uint256 private _defaultPercentage;
     mapping(uint256 => RoyaltySpec) private _tokenOverrides;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Events
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Event to emit when the default roylaty is updated
+    event DefaultRoyaltyUpdate(address indexed sender, address newRecipient, uint256 newPercentage);
+
+    /// @dev Event to emit when a token royalty is overriden
+    event TokenRoyaltyOverride(address indexed sender, uint256 indexed tokenId, address newRecipient, uint256 newPercentage);
 
     /*//////////////////////////////////////////////////////////////////////////
                                     Errors
@@ -61,6 +71,7 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
         if (newPercentage > 10_000) revert MaxRoyaltyError();
         _defaultRecipient = newRecipient;
         _defaultPercentage = newPercentage;
+        emit DefaultRoyaltyUpdate(msg.sender, newRecipient, newPercentage);
     }
 
     /// @notice Function to override royalty spec on a specific token
@@ -72,6 +83,7 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
         if (newPercentage > 10_000) revert MaxRoyaltyError();
         _tokenOverrides[tokenId].recipient = newRecipient;
         _tokenOverrides[tokenId].percentage = newPercentage;
+        emit TokenRoyaltyOverride(msg.sender, tokenId, newRecipient, newPercentage);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

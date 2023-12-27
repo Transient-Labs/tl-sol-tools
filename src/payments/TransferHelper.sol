@@ -43,11 +43,13 @@ abstract contract TransferHelper {
     /// @notice Function to force transfer ETH, with a gas limit
     /// @dev On failure to send the ETH, the ETH is converted to WETH and sent
     /// @dev Care should be taken to always pass the proper WETH address that adheres to IWETH
+    /// @dev If the `amount` is zero, the function returns in order to save gas
     /// @param recipient The recipient of the ETH
     /// @param amount The amount of ETH to send
     /// @param weth The WETH token address
     /// @param gasLimit The gas to forward
     function _safeTransferETH(address recipient, uint256 amount, address weth, uint256 gasLimit) internal {
+        if (amount == 0) return;
         (bool success,) = recipient.call{value: amount, gas: gasLimit}("");
         if (!success) {
             IWETH token = IWETH(weth);
@@ -64,10 +66,12 @@ abstract contract TransferHelper {
     /// @dev Does not check if the sender has enough balance as that is handled by the token contract
     /// @dev Does not check for token tax as that could lock up funds in the contract
     /// @dev Reverts on failure to transfer
+    /// @dev If the `amount` is zero, the function returns in order to save gas
     /// @param recipient The recipient of the ERC-20 token
     /// @param currency The address of the ERC-20 token
     /// @param amount The amount of ERC-20 to send
     function _safeTransferERC20(address recipient, address currency, uint256 amount) internal {
+        if (amount == 0) return;
         IERC20(currency).safeTransfer(recipient, amount);
     }
 
@@ -75,11 +79,15 @@ abstract contract TransferHelper {
     /// @dev Does not check if the sender has enough balance or allowance for this contract as that is handled by the token contract
     /// @dev Reverts on failure to transfer
     /// @dev Reverts if there is a token tax taken out
+    /// @dev Returns and doesn't do anything if the sender and recipient are the same address
+    /// @dev If the `amount` is zero, the function returns in order to save gas
     /// @param sender The sender of the tokens
     /// @param recipient The recipient of the ERC-20 token
     /// @param currency The address of the ERC-20 token
     /// @param amount The amount of ERC-20 to send
     function _safeTransferFromERC20(address sender, address recipient, address currency, uint256 amount) internal {
+        if (amount == 0) return;
+        if (sender == recipient) return;
         IERC20 token = IERC20(currency);
         uint256 intialBalance = token.balanceOf(recipient);
         token.safeTransferFrom(sender, recipient, amount);
