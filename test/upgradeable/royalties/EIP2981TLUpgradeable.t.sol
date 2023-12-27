@@ -16,6 +16,9 @@ contract TestEIP2981TLUpgradeable is Test {
             vm.expectRevert(EIP2981TLUpgradeable.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
             vm.expectRevert(EIP2981TLUpgradeable.MaxRoyaltyError.selector);
+        } else {
+            vm.expectEmit(true, true, true, true);
+            emit EIP2981TLUpgradeable.DefaultRoyaltyUpdate(address(this), recipient, percentage);
         }
         mockContract.initialize(recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
@@ -48,6 +51,9 @@ contract TestEIP2981TLUpgradeable is Test {
             vm.expectRevert(EIP2981TLUpgradeable.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
             vm.expectRevert(EIP2981TLUpgradeable.MaxRoyaltyError.selector);
+        } else {
+            vm.expectEmit(true, true, true, true);
+            emit EIP2981TLUpgradeable.DefaultRoyaltyUpdate(address(this), recipient, percentage);
         }
         mockContract.setDefaultRoyalty(recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
@@ -71,6 +77,9 @@ contract TestEIP2981TLUpgradeable is Test {
             vm.expectRevert(EIP2981TLUpgradeable.ZeroAddressError.selector);
         } else if (percentage > 10_000) {
             vm.expectRevert(EIP2981TLUpgradeable.MaxRoyaltyError.selector);
+        } else {
+            vm.expectEmit(true, true, true, true);
+            emit EIP2981TLUpgradeable.TokenRoyaltyOverride(address(this), tokenId, recipient, percentage);
         }
         mockContract.setTokenRoyalty(tokenId, recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {

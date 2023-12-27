@@ -32,7 +32,7 @@ abstract contract OwnableAccessControl is Ownable {
     /// @param role The bytes32 role created in the inheriting contract
     event RoleChange(address indexed from, address indexed user, bool indexed approved, bytes32 role);
 
-    /// @param from - address that authorized the revoke
+    /// @param from Address that authorized the revoke
     event AllRolesRevoked(address indexed from);
 
     /*//////////////////////////////////////////////////////////////////////////
