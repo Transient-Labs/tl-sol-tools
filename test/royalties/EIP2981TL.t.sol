@@ -8,6 +8,12 @@ import {EIP2981TL} from "src/royalties/EIP2981TL.sol";
 contract TestEIP2981TL is Test {
     MockEIP2981TL public mockContract;
 
+    /// @dev Event to emit when the default roylaty is updated
+    event DefaultRoyaltyUpdate(address indexed sender, address newRecipient, uint256 newPercentage);
+
+    /// @dev Event to emit when a token royalty is overriden
+    event TokenRoyaltyOverride(address indexed sender, uint256 indexed tokenId, address newRecipient, uint256 newPercentage);
+
     function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
         public
     {
@@ -17,7 +23,7 @@ contract TestEIP2981TL is Test {
             vm.expectRevert(EIP2981TL.MaxRoyaltyError.selector);
         } else {
             vm.expectEmit(true, true, true, true);
-            emit EIP2981TL.DefaultRoyaltyUpdate(address(this), recipient, percentage);
+            emit DefaultRoyaltyUpdate(address(this), recipient, percentage);
         }
         mockContract = new MockEIP2981TL(recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
@@ -50,7 +56,7 @@ contract TestEIP2981TL is Test {
             vm.expectRevert(EIP2981TL.MaxRoyaltyError.selector);
         } else {
             vm.expectEmit(true, true, true, true);
-            emit EIP2981TL.DefaultRoyaltyUpdate(address(this), recipient, percentage);
+            emit DefaultRoyaltyUpdate(address(this), recipient, percentage);
         }
         mockContract.setDefaultRoyalty(recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
@@ -75,7 +81,7 @@ contract TestEIP2981TL is Test {
             vm.expectRevert(EIP2981TL.MaxRoyaltyError.selector);
         } else {
             vm.expectEmit(true, true, true, true);
-            emit EIP2981TL.TokenRoyaltyOverride(address(this), tokenId, recipient, percentage);
+            emit TokenRoyaltyOverride(address(this), tokenId, recipient, percentage);
         }
         mockContract.setTokenRoyalty(tokenId, recipient, uint256(percentage));
         if (recipient != address(0) && percentage <= 10_000) {
