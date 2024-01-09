@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {SafeERC20} from "openzeppelin/token/ERC20/utils/SafeERC20.sol";
-import {IWETH, IERC20} from "src/payments/IWETH.sol";
+import {IWETH, IERC20} from "./IWETH.sol";
 
 /// @title Transfer Helper
 /// @notice Abstract contract that has helper function for sending ETH and ERC20's safely

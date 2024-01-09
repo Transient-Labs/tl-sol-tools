@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import {Initializable} from "openzeppelin-upgradeable/proxy/utils/Initializable.sol";
-import {IChainalysisSanctionsOracle} from "src/payments/IChainalysisSanctionsOracle.sol";
+import {IChainalysisSanctionsOracle} from "../../payments/IChainalysisSanctionsOracle.sol";
 
 /// @title Sanctions Compliance
 /// @notice Abstract contract to comply with U.S. sanctioned addresses

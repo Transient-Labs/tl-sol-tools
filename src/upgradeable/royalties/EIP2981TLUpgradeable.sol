@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {ERC165Upgradeable} from "openzeppelin-upgradeable/utils/introspection/ERC165Upgradeable.sol";
-import {IEIP2981} from "src/royalties/IEIP2981.sol";
+import {IEIP2981} from "../../royalties/IEIP2981.sol";
 
 /// @title EIP2981TLUpgradeable.sol
 /// @notice Abstract contract to define a default royalty spec
