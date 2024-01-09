@@ -2,8 +2,8 @@
 pragma solidity ^0.8.20;
 
 import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
-import {SanctionsCompliance} from "src/payments/SanctionsCompliance.sol";
-import {TransferHelper} from "src/payments/TransferHelper.sol";
+import {SanctionsCompliance} from "./SanctionsCompliance.sol";
+import {TransferHelper} from "./TransferHelper.sol";
 
 /// @title Royalty Payout Helper
 /// @notice Abstract contract to help payout royalties using the Royalty Registry
