@@ -86,6 +86,8 @@ contract OwnableAccessControlTest is Test {
     }
 
     function test_AdminRole(address admin, address minter, uint256 newNumberOne, uint256 newNumberTwo) public {
+        vm.assume(admin != address(this));
+
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         address[] memory admins = new address[](1);
@@ -187,6 +189,8 @@ contract OwnableAccessControlTest is Test {
     }
 
     function test_MinterRole(address minter, uint256 newNumber) public {
+        vm.assume(minter != address(this));
+
         mockContract = new MockOwnableAccessControlUpgradeable();
         mockContract.initialize(address(this));
         // grant minter role and expect proper event log

@@ -134,7 +134,10 @@ contract TestTransferHelper is Test {
     }
 
     function test_SafeTransferFromERC20(address recipient, uint256 amount) public {
-        vm.assume(recipient != address(0) && recipient != address(th) && amount > 0);
+        vm.assume(recipient != address(0));
+        vm.assume(recipient != address(th));
+        vm.assume(recipient != chris);
+        vm.assume(amount > 0);
 
         // fund chris
         vm.prank(ben);
