@@ -8,17 +8,12 @@ clean:
 
 # Remove the modules
 remove:
-	rm -rf .gitmodules && rm -rf .git/modules/* && rm -rf lib && touch .gitmodules
+	rm -rf dependencies
 
 # Install the modules
 install:
-	forge install foundry-rs/forge-std --no-commit
-	forge install OpenZeppelin/openzeppelin-contracts@v5.0.1 --no-commit
-	forge install OpenZeppelin/openzeppelin-contracts-upgradeable@v5.0.1 --no-commit
-	forge install manifoldxyz/royalty-registry-solidity --no-commit
+	forge soldeer install
 
-# Updatee the modules
-update: remove install
 
 # Builds
 build:
@@ -29,6 +24,12 @@ compiler_test:
 	forge test --use 0.8.20
 	forge test --use 0.8.21
 	forge test --use 0.8.22
+	forge test --use 0.8.23
+	forge test --use 0.8.24
+	forge test --use 0.8.25
+	forge test --use 0.8.26
+	forge test --use 0.8.27
+	forge test --use 0.8.28
 
 quick_test:
 	forge test

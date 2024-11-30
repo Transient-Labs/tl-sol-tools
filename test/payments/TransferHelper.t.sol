@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
+import "forge-std-1.9.4/Test.sol";
+import {IERC20} from "@openzeppelin-contracts-5.0.2/token/ERC20/IERC20.sol";
 import {Receiver, RevertingReceiver, GriefingReceiver} from "test/utils/Receivers.sol";
 import {WETH9} from "test/utils/WETH9.sol";
 import {MockERC20, MockERC20WithFee} from "test/utils/MockERC20.sol";

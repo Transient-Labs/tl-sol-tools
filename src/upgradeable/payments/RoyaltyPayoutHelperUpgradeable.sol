@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {IRoyaltyEngineV1} from "royalty-registry-solidity/IRoyaltyEngineV1.sol";
+import {IRoyaltyEngineV1} from "royalty-registry-solidity-1.0.0/IRoyaltyEngineV1.sol";
 import {TransferHelper} from "../../payments/TransferHelper.sol";
 import {SanctionsComplianceUpgradeable} from "../../upgradeable/payments/SanctionsComplianceUpgradeable.sol";
 

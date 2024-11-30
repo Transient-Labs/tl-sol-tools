@@ -12,3 +12,6 @@ out/
 
 # Docs
 docs/
+
+# Soldeer
+/dependencies

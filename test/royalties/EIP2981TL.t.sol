@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
+import "forge-std-1.9.4/Test.sol";
 import {MockEIP2981TL} from "test/utils/MockEIP2981TL.sol";
 import {EIP2981TL} from "src/royalties/EIP2981TL.sol";
 
@@ -12,7 +12,9 @@ contract TestEIP2981TL is Test {
     event DefaultRoyaltyUpdate(address indexed sender, address newRecipient, uint256 newPercentage);
 
     /// @dev Event to emit when a token royalty is overriden
-    event TokenRoyaltyOverride(address indexed sender, uint256 indexed tokenId, address newRecipient, uint256 newPercentage);
+    event TokenRoyaltyOverride(
+        address indexed sender, uint256 indexed tokenId, address newRecipient, uint256 newPercentage
+    );
 
     function test_DefaultRoyaltyInfo(uint256 tokenId, address recipient, uint16 percentage, uint256 saleAmount)
         public
