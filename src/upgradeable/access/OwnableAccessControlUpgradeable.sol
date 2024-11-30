@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {OwnableUpgradeable} from "openzeppelin-upgradeable/access/OwnableUpgradeable.sol";
-import {EnumerableSet} from "openzeppelin/utils/structs/EnumerableSet.sol";
+import {OwnableUpgradeable} from "@openzeppelin-contracts-upgradeable-5.0.2/access/OwnableUpgradeable.sol";
+import {EnumerableSet} from "@openzeppelin-contracts-5.0.2/utils/structs/EnumerableSet.sol";
 
 /// @title OwnableAccessControlUpgradeable.sol
 /// @notice Single owner, flexible access control mechanics

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {ERC165} from "openzeppelin/utils/introspection/ERC165.sol";
+import {ERC165} from "@openzeppelin-contracts-5.0.2/utils/introspection/ERC165.sol";
 import {IEIP2981} from "./IEIP2981.sol";
 
 /// @title EIP2981TL.sol
@@ -37,7 +37,9 @@ abstract contract EIP2981TL is IEIP2981, ERC165 {
     event DefaultRoyaltyUpdate(address indexed sender, address newRecipient, uint256 newPercentage);
 
     /// @dev Event to emit when a token royalty is overriden
-    event TokenRoyaltyOverride(address indexed sender, uint256 indexed tokenId, address newRecipient, uint256 newPercentage);
+    event TokenRoyaltyOverride(
+        address indexed sender, uint256 indexed tokenId, address newRecipient, uint256 newPercentage
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                     Errors

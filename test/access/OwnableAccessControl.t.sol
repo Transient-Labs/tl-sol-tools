@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
+import "forge-std-1.9.4/Test.sol";
 import {MockOwnableAccessControl} from "test/utils/MockOwnableAccessControl.sol";
 import {OwnableAccessControl, Ownable} from "src/access/OwnableAccessControl.sol";
 
